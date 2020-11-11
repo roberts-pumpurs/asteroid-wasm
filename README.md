@@ -6,13 +6,6 @@ A slightly opinionated local dev full stack template using docker-compose with D
 
 Please see requirements.txt, package.json, Cargo.toml for full details.
 
-Django
-
-- Django v3 series
-- Django Rest Framework
-- Django Rest Framework Simple JWT
-- PyTest
-
 React
 
 - Create React App
@@ -30,7 +23,6 @@ Postgress
 Ngnix
 
 - Docker stable alpine
-- See conf for details. Serves Django's static and media files as well.
 
 Rust
 
@@ -39,12 +31,6 @@ Rust
 - wasm-bindgen for WEB APIs
 
 ## Notes
-
-Django
-
-- One app created/installed called core
-- Custom user stubbed out in the Core app. No additional fields. Just a blank class that inherets AbstractUser. core.User is assigned as AUTH_USER_MODEL
-- SimpleJWT is installed but not used.
 
 React
 
@@ -94,13 +80,13 @@ $> docker exec -it <container-name> sh
 
 ### Containers, Services and Ports
 
-| Container  | Service | Host Port | Docker Port |
-| ---------- | ------- | --------- | ----------- |
-| dev-django | django  | 8001      | 8000        |
-| dev-react  | react   | 3001      | 3000        |
-| dev-db     | db      | 5432      | 5432        |
-| dev-nginx  | nginx   | 8080      | 80          |
-| dev-rust   | rust    |           |             |
+| Container | Service | Host Port | Docker Port |
+| --------- | ------- | --------- | ----------- |
+| dev-node  | node    | 8001      | 8000        |
+| dev-react | react   | 3001      | 3000        |
+| dev-db    | db      | 5432      | 5432        |
+| dev-nginx | nginx   | 8080      | 80          |
+| dev-rust  | rust    |           |             |
 
 ### Why NGINX for local dev
 
