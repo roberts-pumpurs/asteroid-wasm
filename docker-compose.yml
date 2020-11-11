@@ -33,13 +33,19 @@ services:
       - rust
     restart: on-failure
   db:
-    image: postgres:12.0-alpine
+    image: neo4j:4.1.4
     container_name: dev-db
+    restart: unless-stopped
     ports:
-      - 5432:5432
+      - 7474:7474
+      - 7687:7687
     env_file: ./.env.dev
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./conf:/conf
+      - ./data:/data
+      - ./import:/import
+      - ./logs:/logs
+      - ./plugins:/plugins
   nginx:
     build: ./nginx
     container_name: dev-nginx
