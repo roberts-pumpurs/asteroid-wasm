@@ -20,19 +20,19 @@ app.listen(port, () => {
 app.use(express.json());
 
 // Get All
-app.get('/mouses', (req, res) => {
+app.get('/api/mouses', (req, res) => {
   res.send(database.mouse.getAll());
 });
 
 // GET specific
-app.get('/mouses/:id', (req, res) => {
+app.get('/api/mouses/:id', (req, res) => {
   const item = database.mouse.get(Number(req.params.id));
   res.send(item);
   res.status(item === null ? 404 : 200);
 });
 
 // Create new
-app.post('/mouses', (req, res) => {
+app.post('/api/mouses', (req, res) => {
   const obj: Mouse = req.body;
   const saved = database.mouse.create(obj);
   res.send({ success: saved });
@@ -40,14 +40,14 @@ app.post('/mouses', (req, res) => {
 });
 
 // Delete
-app.delete('/mouses/:id', (req, res) => {
+app.delete('/api/mouses/:id', (req, res) => {
   const deleted = database.mouse.delete(Number(req.params.id));
   res.send({ success: deleted });
   res.status(deleted ? 204 : 400);
 });
 
 // Update
-app.put('/mouses/:id', (req, res) => {
+app.put('/api/mouses/:id', (req, res) => {
   const obj: Mouse = { ...req.body, pk: Number(req.params.id) };
   const updated = database.mouse.update(obj);
   res.send({ success: updated });
