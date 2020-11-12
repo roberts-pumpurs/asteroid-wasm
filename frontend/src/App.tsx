@@ -6,6 +6,7 @@ import { Footer } from 'core/footer/Footer';
 import 'utils/_base.scss';
 import style from 'utils/stars.module.scss';
 
+
 function App(): ReactElement {
   return (
     <>

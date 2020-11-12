@@ -4,11 +4,20 @@ import {
   Switch,
   Route,
 } from 'react-router-dom';
+import { WasmContextConsumer } from 'WasmContext';
+import { Game } from './Game';
+
 export function Main(): React.ReactElement {
   return (
     <Switch>
       <Route exact path="/">
-        <div></div>
+        <WasmContextConsumer>
+          {
+            (context) => context && (
+              <Game wasm={context.wasm} />
+            )
+          }
+        </WasmContextConsumer>
       </Route>
     </Switch>
   );
