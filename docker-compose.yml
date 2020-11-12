@@ -27,7 +27,7 @@ services:
     volumes:
       - ./frontend/:/srv/app
       - /srv/app/node_modules
-      - wasm:/srv/app/src/rust/
+      - wasm:/srv/app/src/rust/pkg
     depends_on:
       - node
       - rust
@@ -63,7 +63,8 @@ services:
     build: ./rust
     command: sh -c 'cargo watch -i .gitignore -i "pkg/*" -s "wasm-pack build --out-dir /srv/app/rust/pkg"'
     volumes:
-      - wasm:/srv/app/rust
+      - ./rust:/srv/app/rust
+      - wasm:/srv/app/rust/pkg
     restart: on-failure
 volumes:
   wasm:
