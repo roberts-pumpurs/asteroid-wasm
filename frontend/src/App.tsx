@@ -4,10 +4,14 @@ import { Header } from 'core/header/Header';
 import { Main } from 'core/main/Main';
 import { Footer } from 'core/footer/Footer';
 import 'utils/_base.scss';
+import style from 'utils/stars.module.scss';
 
 function App(): ReactElement {
   return (
     <>
+      <div className="star-container">
+        {Array.apply(null, Array(30)).map((_, index) => <div key={index} className={style.star} />)}
+      </div>
       <header>
         <Header />
       </header>
