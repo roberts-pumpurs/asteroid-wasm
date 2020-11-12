@@ -6,10 +6,14 @@ A slightly opinionated local dev full stack template using docker-compose with D
 
 Please see requirements.txt, package.json, Cargo.toml for full details.
 
+ExpressJS
+
+- Node dev server via Docker LTS alpine image
+- TypeScript/ESlint with very opinionated rules
+
 React
 
 - Create React App
-- Node dev server via Docker LTS alpine image
 - Hot reload
 - TypeScript/ESlint with very opinionated rules
 - SASS support
