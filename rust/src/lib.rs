@@ -1,29 +1,42 @@
+mod client;
+mod gl_setup;
+mod programs;
+mod shaders;
 mod utils;
+mod canvas;
+mod transform;
+mod input;
 
+use crate::input::UserInput;
+use std::fmt::Debug;
+use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
 
-// When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
-// allocator.
-#[cfg(feature = "wee_alloc")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+use web_sys::WebGlProgram;
+use web_sys::WebGlRenderingContext as GL;
+use crate::transform::Transform;
+use crate::canvas::CanvasData;
 
-#[wasm_bindgen]
-extern {
-    fn alert(s: &str);
+
+
+pub trait RenderObjectTrait {
+    fn new(gl: &GL, program: WebGlProgram, transform: Transform) -> Self where Self: Sized;
+    fn transform(&self) -> &Transform;
+    fn set_transform(&mut self, transform: Transform);
+    fn input(&mut self) -> &mut UserInput;
+    fn set_input(&mut self, input: UserInput);
+    fn draw_scene(&mut self, gl: &GL, canvas: &CanvasData);
 }
 
 #[wasm_bindgen]
-pub fn greet() {
-    alert("Hello, spa-wasm-rust!");
+#[derive(Debug)]
+pub enum RenderableOption {
+    Cube,
+    Box2D,
 }
 
 #[wasm_bindgen(start)]
-pub fn main_js() -> Result<(), JsValue> {
-    // This provides better error messages in debug mode.
-    // It's disabled in release mode so it doesn't bloat up the file size.
-    #[cfg(debug_assertions)]
-    console_error_panic_hook::set_once();
-
+pub fn start() -> Result<(), JsValue> {
+    set_panic_hook();
     Ok(())
 }
