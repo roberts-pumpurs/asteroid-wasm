@@ -14,12 +14,12 @@ export function Header(): React.ReactElement {
           </Link>
         </li>
         <li className={style['nav-item']}>
-          <Link to="/game">
+          <Link to="/leaderboards">
             Leaderboards
           </Link>
         </li>
         <li className={style['nav-item']}>
-          <Link to="/game">
+          <Link to="/about">
             About
           </Link>
         </li>
