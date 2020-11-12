@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
 
-// import { useUser } from 'global/UserContext';
 import { Header } from 'core/header/Header';
-import { Main } from 'core/root/Main';
+import { Main } from 'core/main/Main';
 import { Footer } from 'core/footer/Footer';
+import 'utils/_base.scss';
 
 function App(): ReactElement {
   return (
@@ -11,10 +11,12 @@ function App(): ReactElement {
       <header>
         <Header />
       </header>
-      <main role="main">
+      <main>
         <Main />
-        <Footer />
       </main>
+      <footer>
+        <Footer />
+      </footer>
     </>
   );
 }

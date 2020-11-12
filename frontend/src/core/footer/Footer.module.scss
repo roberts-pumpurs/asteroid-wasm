@@ -1,0 +1,50 @@
+@use "../../utils/base";
+
+
+footer {
+    background-color: base.$violet-dark;
+    color: grey;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+
+    .logo {
+        display: inline-block;
+        width: 7rem;
+        height: 2rem;
+        background-color: grey;
+    }
+
+    @mixin nav-links {
+        list-style: none;
+        display: inline-block;
+    }
+
+    .nav-links-center {
+        @include nav-links();
+    }
+
+    .nav-links-right {
+        @include nav-links();
+    }
+
+    .nav-item {
+        display: inline-block;
+        padding: 0.3rem;
+
+        @media screen and (max-width: 1024px) {
+            padding: 0em;
+            padding-left: 0.1rem;
+            padding-right: 0.1rem;
+        }
+    }
+
+    .nav-item a {
+        text-decoration: none;
+        padding: 0.3rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        color: grey;
+
+    }
+}
