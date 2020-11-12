@@ -11,7 +11,9 @@ function App(): ReactElement {
     <>
       <div>
         {/* Spawn stars */}
-        {Array.apply(null, Array(100)).map((_, index) => <div key={index} className={style.star} />)}
+        {Array.apply(null, Array(100)).map(
+          (_, index) => <div key={index} className={style.star} />,
+        )}
       </div>
       <header>
         <Header />
