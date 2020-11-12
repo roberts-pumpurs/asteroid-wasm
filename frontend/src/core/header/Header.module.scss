@@ -32,32 +32,4 @@ nav {
         }
     }
 
-    /* ----------- Color -----------  */
-    background-color: base.$navbar-base-color;
-    box-shadow: 0.1rem 0.1rem 0.2rem grey;
-
-    .logo {
-        background-color: base.$violet-dark;
-    }
-
-    .nav-links .nav-item-colored {
-        background-color: base.$violet-light;
-    }
-
-    .nav-links .nav-item-colored a {
-        color: white;
-    }
-
-    .nav-item a {
-        color: rgb(59, 59, 59);
-    }
-
-    /* ----------- Text -----------  */
-    .nav-item a {
-        text-decoration: none;
-    }
-
-    .logo {
-        text-decoration: none;
-    }
 }

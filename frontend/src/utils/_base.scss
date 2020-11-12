@@ -1,4 +1,4 @@
-/* Base */
+/* Global positional adjustments */
 * {
     margin: 0;
     padding: 0;
@@ -14,25 +14,24 @@
     padding: 0;
 }
 
-.pt {
-    padding-top: 1rem;
-}
-
-.mb {
-    margin-bottom: 1rem;
-}
-
-$navbar-base-color: rgb(252, 252, 252);
-$violet-light: blueviolet;
-$violet-dark: rgb(23, 7, 65);
+/* Global site wide styling */
 
 
 body {
-    background-color: azure;
+    background-color: rgb(0, 0, 0);
+    color: white;
+}
+
+li {
+    list-style: none;
+}
+a {
+    text-decoration: none;
+    color: white;
 }
 
 
-// This is to keep the footer down
+/* This is to keep the footer down */
 html,
 body {
     width: 100%;
