@@ -53,7 +53,7 @@ export function Game({ wasm }: Props): ReactElement {
       const tmpClient = new wasm.GlClient(canvas);
       setClient(tmpClient);
     }
-  }, [canvas]);
+  }, [canvas, wasm.GlClient]);
 
   useEffect(() => {
     setRectEl(document.getElementById(canvasId)?.getBoundingClientRect());
@@ -80,8 +80,30 @@ export function Game({ wasm }: Props): ReactElement {
                 );
       }
     },
-    [client],
+    [client, height, rectEl, width],
   );
+  const keyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLCanvasElement>) => {
+      if (rectEl !== undefined) {
+        // client?.update_mouse_position(
+        //   ((e.clientX - rectEl.left) / (rectEl.right - rectEl.left)) * width,
+        //   ((e.clientY - rectEl.top) / (rectEl.bottom - rectEl.top)) * height,
+        // );
+      }
+    },
+    [client, height, rectEl, width],
+  )
+  const keyUp = useCallback(
+    (e: React.KeyboardEvent<HTMLCanvasElement>) => {
+      if (rectEl !== undefined) {
+        // client?.update_mouse_position(
+        //   ((e.clientX - rectEl.left) / (rectEl.right - rectEl.left)) * width,
+        //   ((e.clientY - rectEl.top) / (rectEl.bottom - rectEl.top)) * height,
+        // );
+      }
+    },
+    [client, height, rectEl, width],
+  )
 
   return (
     <div>
@@ -94,6 +116,8 @@ export function Game({ wasm }: Props): ReactElement {
             onMouseDown={mouseDown}
             onMouseUp={mouseUp}
             onMouseMove={mouseMove}
+            onKeyDown={keyDown}
+            onKeyUp={keyUp}
           />
         </div>
         <div>

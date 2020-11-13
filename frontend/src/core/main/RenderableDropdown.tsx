@@ -24,14 +24,14 @@ export function RenderableDropdown({
   const [z, setZ] = useState(-6);
 
   useEffect(() => {
-    setOption(+wasm.RenderableOption.Cube);
+    setOption(+wasm.RenderableOption.Asteroid);
   }, []);
 
   useEffect(() => {
     if (options !== undefined) {
       client.set_renderable(+options, new wasm.Transform(x, y, z));
     }
-  }, [options]);
+  }, [client, options, wasm.Transform, x, y, z]);
 
   return client !== undefined && options !== undefined ? (
     <div>
