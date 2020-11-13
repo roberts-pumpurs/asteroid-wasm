@@ -33,6 +33,7 @@ pub trait RenderObjectTrait {
 pub enum RenderableOption {
     Cube,
     Box2D,
+    Asteroid,
 }
 
 #[wasm_bindgen(start)]

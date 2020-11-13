@@ -11,6 +11,11 @@ pub struct UserInput {
     pub mouse_y_centered: f32,
     pub rotation_x_axis: f32,
     pub rotation_y_axis: f32,
+    pub spacebar: bool,
+    pub keyboard_w: bool,
+    pub keyboard_s: bool,
+    pub keyboard_a: bool,
+    pub keyboard_d: bool,
 }
 
 impl UserInput {
@@ -23,6 +28,11 @@ impl UserInput {
             rotation_y_axis: 0.,
             mouse_x_centered: 0.,
             mouse_y_centered: 0.,
+            spacebar: false,
+            keyboard_w: false,
+            keyboard_s: false,
+            keyboard_a: false,
+            keyboard_d: false,
         }
     }
 

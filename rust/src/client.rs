@@ -1,16 +1,17 @@
-use crate::programs::cube::Cube;
-use wasm_bindgen::prelude::*;
-use crate::canvas::CanvasData;
-use crate::transform::Transform;
+use crate::{programs::asteroid::AsteroidCanvas, canvas::CanvasData};
 use crate::programs::box_2d::Box2D;
+use crate::programs::cube::Cube;
 use crate::shaders::fragment::F_SHADER;
 use crate::shaders::vertex::V_SHADER;
+use crate::transform::Transform;
 use crate::RenderableOption;
 use crate::{
     gl_setup,
-    utils::{console_log, link_program}, RenderObjectTrait,
+    utils::{console_log, link_program},
+    RenderObjectTrait,
 };
-use web_sys::{WebGlProgram, WebGlRenderingContext as GL, HtmlCanvasElement};
+use wasm_bindgen::prelude::*;
+use web_sys::{HtmlCanvasElement, WebGlProgram, WebGlRenderingContext as GL};
 
 #[wasm_bindgen]
 pub struct GlClient {
@@ -23,7 +24,6 @@ pub struct GlClient {
 
 #[wasm_bindgen]
 impl GlClient {
-    // #[wasm_bindgen(constructor)]
     pub fn new(opt: RenderableOption, canvas: &CanvasData, transform: &Transform) -> Self {
         let canvas_el: HtmlCanvasElement = gl_setup::get_canvas(&canvas.get_canvas());
         let gl: GL = gl_setup::initialize_webgl_context(&canvas_el).unwrap();
@@ -73,11 +73,18 @@ impl GlClient {
 
         match opt {
             RenderableOption::Cube => {
-                let object: Box<Cube> = Box::new(RenderObjectTrait::new(&self.gl, program, transform.clone()));
+                let object: Box<Cube> =
+                    Box::new(RenderObjectTrait::new(&self.gl, program, transform.clone()));
                 self.object = Some(object);
             }
             RenderableOption::Box2D => {
-                let object: Box<Box2D> = Box::new(RenderObjectTrait::new(&self.gl, program, transform.clone()));
+                let object: Box<Box2D> =
+                    Box::new(RenderObjectTrait::new(&self.gl, program, transform.clone()));
+                self.object = Some(object);
+            }
+            RenderableOption::Asteroid => {
+                let object: Box<AsteroidCanvas> =
+                    Box::new(RenderObjectTrait::new(&self.gl, program, transform.clone()));
                 self.object = Some(object);
             }
         }
@@ -93,10 +100,8 @@ impl GlClient {
     #[wasm_bindgen]
     pub fn get_transform(&mut self) -> Option<Transform> {
         match &mut self.object {
-            Some(obj) => {
-                Some(obj.transform().clone())
-            }
-            None => {None}
+            Some(obj) => Some(obj.transform().clone()),
+            None => None,
         }
     }
 
@@ -113,7 +118,7 @@ impl GlClient {
     }
 
     #[wasm_bindgen]
-    pub fn update_mouse_down(&mut self,x: f32, y: f32, is_down: bool) {
+    pub fn update_mouse_down(&mut self, x: f32, y: f32, is_down: bool) {
         match &mut self.object {
             Some(obj) => {
                 obj.input().update_mouse_down(x, y, is_down);
@@ -124,10 +129,67 @@ impl GlClient {
         }
     }
     #[wasm_bindgen]
-    pub fn update_mouse_position(&mut self,x: f32, y: f32,) {
+    pub fn update_mouse_position(&mut self, x: f32, y: f32) {
         match &mut self.object {
             Some(obj) => {
                 obj.input().update_mouse_position(x, y, &self.canvas);
+            }
+            None => {
+                console_log("doing Nothing");
+            }
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn keybaord_space(&mut self) {
+        match &mut self.object {
+            Some(obj) => {
+                obj.input().spacebar = true;
+            }
+            None => {
+                console_log("doing Nothing");
+            }
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn keyboard_w(&mut self) {
+        match &mut self.object {
+            Some(obj) => {
+                obj.input().keyboard_w = true;
+            }
+            None => {
+                console_log("doing Nothing");
+            }
+        }
+    }
+    #[wasm_bindgen]
+    pub fn keyboard_a(&mut self) {
+        match &mut self.object {
+            Some(obj) => {
+                obj.input().keyboard_a = true;
+            }
+            None => {
+                console_log("doing Nothing");
+            }
+        }
+    }
+    #[wasm_bindgen]
+    pub fn keyboard_s(&mut self) {
+        match &mut self.object {
+            Some(obj) => {
+                obj.input().keyboard_s = true;
+            }
+            None => {
+                console_log("doing Nothing");
+            }
+        }
+    }
+    #[wasm_bindgen]
+    pub fn keyboard_d(&mut self) {
+        match &mut self.object {
+            Some(obj) => {
+                obj.input().keyboard_d = true;
             }
             None => {
                 console_log("doing Nothing");
