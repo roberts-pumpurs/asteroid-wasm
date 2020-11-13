@@ -2,14 +2,14 @@ import React, {
   ReactElement, useState, useEffect, useRef, useCallback,
 } from 'react';
 import { CanvasData, GlClient, Transform } from 'wasm-app';
-import RenderableDropdown from './RenderableDropdown';
+import { RenderableDropdown } from './RenderableDropdown';
 
 interface Props {
   wasm: typeof import('wasm-app');
   // memory: WebAssembly.Memory,
 }
 
-const FPS_THROTTLE = 1000 / 144; // 60fps
+const FPS_THROTTLE = 1000 / 144; // 144 fps
 
 export function Game({ wasm }: Props): ReactElement {
   const [canvas, setCanvas] = useState<CanvasData>();
@@ -32,7 +32,7 @@ export function Game({ wasm }: Props): ReactElement {
   const animate = useCallback(
     (time: number) => {
       if (
-        previousTimeRef.current != undefined
+        previousTimeRef.current !== undefined
                 && time - previousTimeRef.current > FPS_THROTTLE
       ) {
                 client?.render();
@@ -84,9 +84,9 @@ export function Game({ wasm }: Props): ReactElement {
   );
 
   return (
-    <div className="container-fluid mt-5 mr-5">
-      <div className="row">
-        <div className="col">
+    <div>
+      <div>
+        <div>
           <canvas
             id={canvasId}
             height={height}
@@ -96,7 +96,7 @@ export function Game({ wasm }: Props): ReactElement {
             onMouseMove={mouseMove}
           />
         </div>
-        <div className="col">
+        <div>
           {wasm && canvas && client && (
             <RenderableDropdown client={client} wasm={wasm} />
           )}

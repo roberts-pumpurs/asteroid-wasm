@@ -8,7 +8,7 @@ import { WasmContextProvider } from 'WasmContext';
 const rust = import('wasm-app');
 
 rust
-  .then((module) => {
+  .then((module: typeof import('wasm-app') ) => {
     ReactDOM.render(
       <WasmContextProvider value={{ wasm: module }}>
         <Router>

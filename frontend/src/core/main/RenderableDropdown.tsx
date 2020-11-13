@@ -1,5 +1,9 @@
-import React, { ReactElement, useState, useEffect, useCallback } from 'react';
-import { GlClient, RenderableOption, CanvasData, Transform } from 'wasm-app';
+import React, {
+  ReactElement, useState, useEffect, useCallback,
+} from 'react';
+import {
+  GlClient, RenderableOption, CanvasData, Transform,
+} from 'wasm-app';
 
 interface Props {
   client: GlClient;
@@ -10,7 +14,7 @@ interface Current {
   current: number;
 }
 
-export default function RenderableDropdown({
+export function RenderableDropdown({
   client,
   wasm,
 }: Props): ReactElement {
@@ -25,19 +29,17 @@ export default function RenderableDropdown({
 
   useEffect(() => {
     if (options !== undefined) {
-      client.set_renderable(+options, new wasm.Transform(x,y,z));
-    };
+      client.set_renderable(+options, new wasm.Transform(x, y, z));
+    }
   }, [options]);
 
   return client !== undefined && options !== undefined ? (
     <div>
       <select
-        className="custom-select custom-select-lg mb-3"
         value={Object.keys(wasm.RenderableOption)[options]}
         name="renderable"
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-          const val =
-            wasm.RenderableOption[(e.target.value as unknown) as number];
+          const val = wasm.RenderableOption[(e.target.value as unknown) as number];
           setOption(Number(val));
         }}
       >
@@ -50,7 +52,6 @@ export default function RenderableDropdown({
       <div>
         <div>Change X</div>
         <input
-          className="form-control"
           type="number"
           value={x}
           onChange={(e) => setX(Number(e.target.value))}
@@ -59,7 +60,6 @@ export default function RenderableDropdown({
       <div>
         <div>Change Y</div>
         <input
-          className="form-control"
           type="number"
           value={y}
           onChange={(e) => setY(Number(e.target.value))}
@@ -68,7 +68,6 @@ export default function RenderableDropdown({
       <div>
         <div>Change Z</div>
         <input
-          className="form-control"
           type="number"
           value={z}
           onChange={(e) => setZ(Number(e.target.value))}
