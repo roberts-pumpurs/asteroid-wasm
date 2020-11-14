@@ -176,6 +176,8 @@ export async function initial(): Promise<void> {
   const u1 = { name: 'Roberts', surname: 'Ivanovs', username: 'ivn' };
   const u2 = { name: 'Dzintars', surname: 'Čīča', username: 'dzintars' };
   const u3 = { name: 'Viņķeles', surname: 'Kundze', username: 'disco' };
+  const u4 = { name: 'Raimonds', surname: 'Pauls', username: 'vecadziesma' };
+  const u5 = { name: 'Raimonds', surname: 'Pauls', username: 'jaunadziesma' };
   if (!await createUser(u1)) return;
   if (!await createUser(u2)) return;
   if (!await createUser(u3)) return;
@@ -231,4 +233,6 @@ export async function initial(): Promise<void> {
   await addUserToCounty(c1, u1);
   await addUserToCounty(c2, u2);
   await addUserToCounty(c3, u3);
+  await addUserToCounty(c1, u4);
+  await addUserToCounty(c2, u5);
 }
