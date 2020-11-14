@@ -5,7 +5,7 @@ import {
   Route,
 } from 'react-router-dom';
 import { WasmContextConsumer } from 'WasmContext';
-import { Game } from './Game';
+import { Game } from './Game/Game';
 
 export function Main(): React.ReactElement {
   return (
