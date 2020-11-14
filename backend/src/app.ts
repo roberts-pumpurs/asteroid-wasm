@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import { createCountry, createGame, createUser, getNumNodes, initial } from './database';
+import {
+  createCountry, createGame, createUser, getGames, getNumNodes, getUsers, initial,
+} from './database';
 import { Country, Game, User } from './models';
 
 const app = express();
@@ -57,4 +59,14 @@ app.post('/api/games', async (req, res) => {
   const created = await createGame(obj.game, obj.user);
   res.send({ created });
   res.status(created ? 201 : 400);
+});
+
+app.get('/api/users', async (req, res) => {
+  const filterUser: User = {
+    name: req.query.name?.toString() || '',
+    surname: req.query.surname?.toString() || '',
+    username: req.query.username?.toString() || '',
+  };
+  const users = await getUsers(filterUser);
+  res.send({ users });
 });
