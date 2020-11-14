@@ -1,5 +1,3 @@
-import { DateTime } from "neo4j-driver";
-
 export interface User {
     name: string,
     surname: string,
@@ -13,6 +11,6 @@ export interface Country {
 
 export interface Game {
     score: number,
-    start: DateTime,
-    end: DateTime,
+    start: Date,
+    end: Date,
 }
