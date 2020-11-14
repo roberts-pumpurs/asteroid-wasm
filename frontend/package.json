@@ -12,14 +12,14 @@
     "@types/react-dom": "^16.9.0",
     "@types/react-router-dom": "^5.1.5",
     "axios": "^0.20.0",
+    "history": "^5.0.0",
     "node-sass": "npm:sass@^1.29.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
     "typescript": "^4.0.2",
-    "wasm-app": "file:/srv/app/src/rust/pkg",
-    "history": "^5.0.0",
-    "react-router-dom": "^5.2.0"
+    "wasm-app": "file:/srv/app/src/rust/pkg"
   },
   "scripts": {
     "start": "react-app-rewired start",

@@ -2,11 +2,11 @@
 
 
 footer {
-    padding: 1rem;
+    padding: 2rem;
     display: flex;
     flex-direction: row;
     justify-content: center;
-
+    background-color: base.$primary-two;
     .icon {
         position: absolute;
         margin-left: -3rem;

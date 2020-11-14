@@ -4,13 +4,13 @@ import style from './Footer.module.scss';
 
 export function Footer(): React.ReactElement {
   return (
-    <footer>
+    <>
       <a href="https://www.linkedin.com/in/roberts-ivanovs-3b24b6159/">
         Made by Roberts Ivanovs
       </a>
       <a href="#" >
         <i className={`${'fab fa-github'} ${style.icon}`} />View project
       </a>
-    </footer>
+    </>
   );
 }

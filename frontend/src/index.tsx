@@ -3,18 +3,20 @@ import ReactDOM from 'react-dom';
 import { App } from 'App';
 import * as serviceWorker from 'serviceWorker';
 import { BrowserRouter as Router } from 'react-router-dom';
-
+import { WasmContextProvider } from 'WasmContext';
 
 const rust = import('wasm-app');
 
 rust
-  .then((module) => {
+  .then((module: typeof import('wasm-app') ) => {
     ReactDOM.render(
-      <Router>
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      </Router>,
+      <WasmContextProvider value={{ wasm: module }}>
+        <Router>
+          <React.StrictMode>
+            <App />
+          </React.StrictMode>
+        </Router>
+      </WasmContextProvider>,
       document.getElementById('root'),
     );
   })
