@@ -70,3 +70,8 @@ app.get('/api/users', async (req, res) => {
   const users = await getUsers(filterUser);
   res.send({ users });
 });
+
+app.get('/api/games', async (req, res) => {
+  const games = await getGames();
+  res.send({ games });
+});
