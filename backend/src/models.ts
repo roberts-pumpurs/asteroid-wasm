@@ -1,11 +1,18 @@
-export interface Item {
-    pk?: number,
+import { DateTime } from "neo4j-driver";
+
+export interface User {
+    name: string,
+    surname: string,
+    username: string,
 }
 
-export interface Mouse extends Item {
-    model: string,
-    manufacturer: string,
-    dpi: number,
-    buttons: number,
-    wireless: boolean,
+export interface Country {
+    name: string,
+    population: number,
+}
+
+export interface Game {
+    score: number,
+    start: DateTime,
+    end: DateTime,
 }
