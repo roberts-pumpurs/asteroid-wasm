@@ -105,6 +105,60 @@ export async function addUserToCounty(
   }
 }
 
+export async function getUsers(
+  userPropertiesStartingNames: User,
+): Promise<Array<User>> {
+  const session = driver.session();
+  try {
+    const createdGame = await session.run(`
+    MATCH (n: user)
+    WHERE n.username STARTS WITH $username
+    AND n.name STARTS WITH $name
+    AND n.surname STARTS WITH $surname
+    RETURN n
+    `, {
+      username: userPropertiesStartingNames.username,
+      name: userPropertiesStartingNames.name,
+      surname: userPropertiesStartingNames.surname,
+    });
+    console.log(JSON.stringify(createdGame.records));
+    return createdGame.records.map((el) => el.get(0).properties);
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+}
+
+interface GameListing {
+  game: Game,
+  user: User,
+  country: Country,
+}
+export async function getGames(
+): Promise<Array<GameListing>> {
+  const session = driver.session();
+  try {
+    const createdGame = await session.run(`
+    MATCH (g: game)<-[p]-(u: user)-[l]->(c: country)
+    RETURN g, u, c
+    `, {});
+    console.log(JSON.stringify(createdGame.records));
+    /*
+    Game | user | country
+    */
+    return createdGame.records.map(
+      (el) => ({
+        game: el.get(0).properties,
+        user: el.get(1).properties,
+        country: el.get(2).properties,
+      }),
+    );
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+}
+
 /* INITIAL DB SETUP */
 export async function initial(): Promise<void> {
   const session = driver.session();
