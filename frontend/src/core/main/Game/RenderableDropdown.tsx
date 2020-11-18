@@ -15,7 +15,7 @@ export function RenderableDropdown({
   client,
   wasm,
 }: Props): ReactElement {
-  const [options, setOption] = useState<RenderableOption>(wasm.RenderableOption.Cube);
+  const [options, setOption] = useState<RenderableOption>(wasm.RenderableOption.Asteroid);
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
   const [z, setZ] = useState(-6);
