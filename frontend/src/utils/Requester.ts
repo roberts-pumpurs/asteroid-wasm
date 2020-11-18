@@ -1,6 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { Sample } from 'utils/Responses';
-import { SampleRequest } from 'utils/Requests';
+import { GameListing, GameListingResponse, Leaderboard } from 'utils/Responses';
 
 const apiClient = axios.create({
   xsrfCookieName: 'csrftoken',
@@ -8,7 +7,8 @@ const apiClient = axios.create({
 });
 
 const urls = {
-  'local-url-name': '/api/sample-url',
+  'fetch-games': '/api/games',
+  'fetch-leaderboards': '/api/leaderboards',
 };
 
 function isAxiosError(err: AxiosError | unknown): err is AxiosError {
@@ -57,7 +57,8 @@ async function download<T, B>(url: string, params: B): Promise<T> {
 }
 
 class Requester {
-  SampleData = (params: SampleRequest): Promise<Sample> => get(urls['local-url-name'], params);
+  FetchGames = (): Promise<GameListingResponse> => get(urls['fetch-games'], {});
+  FetchLeaderboards = (): Promise<Leaderboard> => get(urls['fetch-leaderboards'], {});
 }
 
 const requester = new Requester();
