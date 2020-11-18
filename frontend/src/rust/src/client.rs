@@ -154,10 +154,10 @@ impl GlClient {
     }
 
     #[wasm_bindgen]
-    pub fn keybaord_space(&mut self) {
+    pub fn keyboard_space(&mut self, value: bool) {
         match &mut self.object {
             Some(obj) => {
-                obj.input().spacebar = true;
+                obj.input().update_spacebar(value);
             }
             None => {
                 console_log("doing Nothing");
@@ -166,10 +166,10 @@ impl GlClient {
     }
 
     #[wasm_bindgen]
-    pub fn keyboard_w(&mut self) {
+    pub fn keyboard_w(&mut self, value: bool) {
         match &mut self.object {
             Some(obj) => {
-                obj.input().keyboard_w = true;
+                obj.input().update_keyboard_w( value);
             }
             None => {
                 console_log("doing Nothing");
@@ -177,10 +177,12 @@ impl GlClient {
         }
     }
     #[wasm_bindgen]
-    pub fn keyboard_a(&mut self) {
+    pub fn keyboard_a(&mut self, value: bool) {
         match &mut self.object {
             Some(obj) => {
-                obj.input().keyboard_a = true;
+
+                console_log(&"SOMETHING A");
+                obj.input().update_keyboard_a( value);
             }
             None => {
                 console_log("doing Nothing");
@@ -188,10 +190,10 @@ impl GlClient {
         }
     }
     #[wasm_bindgen]
-    pub fn keyboard_s(&mut self) {
+    pub fn keyboard_s(&mut self, value: bool) {
         match &mut self.object {
             Some(obj) => {
-                obj.input().keyboard_s = true;
+                obj.input().update_keyboard_s( value);
             }
             None => {
                 console_log("doing Nothing");
@@ -199,10 +201,21 @@ impl GlClient {
         }
     }
     #[wasm_bindgen]
-    pub fn keyboard_d(&mut self) {
+    pub fn keyboard_d(&mut self, value: bool) {
         match &mut self.object {
             Some(obj) => {
-                obj.input().keyboard_d = true;
+                obj.input().update_keyboard_d( value);
+            }
+            None => {
+                console_log("doing Nothing");
+            }
+        }
+    }
+    #[wasm_bindgen]
+    pub fn update(&mut self, delta_time: f32) {
+        match &mut self.object {
+            Some(obj) => {
+                obj.update(delta_time)
             }
             None => {
                 console_log("doing Nothing");

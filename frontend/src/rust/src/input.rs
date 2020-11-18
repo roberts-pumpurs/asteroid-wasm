@@ -2,7 +2,7 @@ use crate::canvas::CanvasData;
 use crate::utils::console_log;
 use core::f32::consts::PI;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct UserInput {
     pub mouse_down: bool,
     pub mouse_x: f32,
@@ -40,6 +40,22 @@ impl UserInput {
         self.mouse_x = x;
         self.mouse_y = y;
         self.mouse_down = is_down;
+    }
+
+    pub fn update_spacebar(&mut self, is_down: bool) {
+        self.spacebar = is_down;
+    }
+    pub fn update_keyboard_w(&mut self, is_down: bool) {
+        self.keyboard_w = is_down;
+    }
+    pub fn update_keyboard_s(&mut self, is_down: bool) {
+        self.keyboard_s = is_down;
+    }
+    pub fn update_keyboard_a(&mut self, is_down: bool) {
+        self.keyboard_a = is_down;
+    }
+    pub fn update_keyboard_d(&mut self, is_down: bool) {
+        self.keyboard_d = is_down;
     }
 
     pub fn update_mouse_position(&mut self, x: f32, y: f32, cd: &CanvasData) {

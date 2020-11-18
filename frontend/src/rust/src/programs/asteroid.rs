@@ -23,8 +23,9 @@ pub struct Drawable {
 }
 
 pub struct SpaceShip {
-    pub velocity: glm::TVec2<f32>,
-    pub position: glm::TVec2<f32>,
+    pub velocity: glm::TVec3<f32>,
+    pub position: glm::TVec3<f32>,
+    pub rotation: f32,
     pub buffers: Drawable,
 }
 
@@ -37,6 +38,7 @@ impl SpaceShip {
         projection_matrix: glm::TMat4<f32>,
     ) {
         console_log("Drawing SpaceShip");
+
         {
             // Set vertices
             let buffer_type = GL::FLOAT;
@@ -53,16 +55,27 @@ impl SpaceShip {
                 stride,
                 offset,
             );
-            // gl.enable_vertex_attrib_array(attribute_locations.vertex_position as u32);
         }
 
+        // set to new position
         let mut empty_matrix = glm::mat4x4(
             0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         );
         empty_matrix.fill_with_identity();
-        // let translation_vector = glm::vec3(0., 0., -6.);
         let translation_vector = glm::vec3(0., 0., -6.);
-        let model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
+        // let translation_vector = self.position;
+        // console_log(&format!(" self.position {}", &self.position));
+        let mut model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
+
+        {
+            // Perform rotation
+            let rotation_vector = glm::vec3(0., 0., 1.);
+            model_view_matrix = glm::rotate_normalized_axis(
+                &model_view_matrix,
+                self.rotation,
+                &rotation_vector,
+            );
+        }
 
         gl.uniform_matrix4fv_with_f32_array(
             Some(&uniform_locations.model_view_matrix),
@@ -97,6 +110,11 @@ impl SpaceShip {
 
         position_buffer
     }
+
+    fn update(&mut self, delta_time: f32) {
+        let frame_velocity = self.velocity.scale(delta_time);
+        self.position += frame_velocity;
+    }
 }
 
 pub struct AsteroidCanvas {
@@ -128,15 +146,18 @@ impl RenderObjectTrait for AsteroidCanvas {
             (-1., -1., 0.),
         ];
         let vertices = SpaceShip::init_buffers(gl, vertices);
-        let ship = SpaceShip {
-            position: glm::vec2(0., 0.),
-            velocity: glm::vec2(0., 0.),
+        let mut ship = SpaceShip {
+            position: glm::vec3(0., 0., 0.),
+            velocity: glm::vec3(0., 0., 0.),
+            rotation: 0.,
             buffers: Drawable {
                 item_size: 3,
                 num_items: 6,
                 buffer_vertices: vertices,
             },
         };
+        ship.position.fill_with_identity();
+        ship.velocity.fill_with_identity();
 
         let attribute_locations = AttributeLocationsLocal {
             vertex_position: gl.get_attrib_location(&program, "aVertexPosition"),
@@ -189,5 +210,18 @@ impl RenderObjectTrait for AsteroidCanvas {
             &self.uniform_locations,
             projection_matrix,
         );
+    }
+
+    fn update(&mut self, delta_time: f32) {
+        console_log(&format!("updating {:?}", &delta_time ));
+        if self.input.keyboard_a {
+            self.ship.rotation += -0.01 * delta_time;
+        } else if self.input.keyboard_d {
+            self.ship.rotation += 0.01 * delta_time;
+        }
+        // if self.input.keyboard_w {
+        //     self.ship.velocity += glm::vec3(1.0, 1.0, 1.0);
+        // }
+        self.ship.update(delta_time);
     }
 }

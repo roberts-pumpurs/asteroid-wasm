@@ -37,6 +37,7 @@ export function Game({ wasm }: Props): ReactElement {
       ) {
         client?.render();
       }
+      client?.update(time - (previousTimeRef.current || 0));
       previousTimeRef.current = time;
       requestRef.current = requestAnimationFrame(animate);
     },
@@ -85,19 +86,40 @@ export function Game({ wasm }: Props): ReactElement {
   );
   const keyDown = useCallback(
     (e: React.KeyboardEvent<HTMLCanvasElement>) => {
+
       if (rectEl !== undefined) {
-        // TODO: Implement this
+          if (e.key === 'a') {
+            client?.keyboard_a(true);
+          } else if (e.key === 'd') {
+            client?.keyboard_d(true);
+          } else if (e.key === 'w') {
+            client?.keyboard_w(true);
+          } else if (e.key === 's') {
+            client?.keyboard_s(true);
+          } else if (e.key === 'Space') {
+            client?.keyboard_space(true);
+          }
       }
     },
-    [rectEl],
+    [client, rectEl],
   );
   const keyUp = useCallback(
     (e: React.KeyboardEvent<HTMLCanvasElement>) => {
       if (rectEl !== undefined) {
-        // TODO: Implement this
+        if (e.key === 'a') {
+          client?.keyboard_a(false);
+        } else if (e.key === 'd') {
+          client?.keyboard_d(false);
+        } else if (e.key === 'w') {
+          client?.keyboard_w(false);
+        } else if (e.key === 's') {
+          client?.keyboard_s(false);
+        } else if (e.key === 'Space') {
+          client?.keyboard_space(false);
+        }
       }
     },
-    [rectEl],
+    [client, rectEl],
   );
 
   return (
@@ -106,6 +128,7 @@ export function Game({ wasm }: Props): ReactElement {
       <div className={style['canvas-and-options']}>
         {/* Create the canvas that will be used for rendering stuff */}
         <canvas
+          tabIndex={0}
           id={canvasId}
           height={height}
           width={width}

@@ -1,5 +1,5 @@
-use crate::utils::console_log;
 use crate::input::UserInput;
+use crate::utils::console_log;
 use nalgebra_glm as glm;
 // use std::time::{SystemTime, UNIX_EPOCH};
 use js_sys::Date;
@@ -224,5 +224,8 @@ impl RenderObjectTrait for Box2D {
     }
     fn set_input(&mut self, input: UserInput) {
         self.input = input;
+    }
+    fn update(&mut self, _: f32) {
+        // todo!()
     }
 }
