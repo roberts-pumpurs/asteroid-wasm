@@ -4,13 +4,13 @@ use crate::input::UserInput;
 use crate::transform::Transform;
 use crate::utils::console_log;
 use crate::RenderObjectTrait;
+use core::f32::consts::PI;
 use nalgebra_glm as glm;
 use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
-use web_sys::WebGlUniformLocation;
 
-use super::{box_2d::UniformLocations, colors::SingleColor};
+use super::box_2d::UniformLocations;
 
 pub struct AttributeLocationsLocal {
     pub vertex_position: i32,
@@ -27,6 +27,17 @@ pub struct SpaceShip {
     pub position: glm::TVec3<f32>,
     pub rotation: f32,
     pub buffers: Drawable,
+}
+
+const Z_AXIS: f32 = -6.;
+
+pub fn get_matrix_rotation(theta: f32) -> glm::Mat3 {
+    let theta_rad = theta * PI / 180.;
+    let theta_cos = theta_rad.cos();
+    let theta_sin = theta_rad.sin();
+    glm::mat3(
+        theta_cos, -theta_sin, 0., theta_sin, theta_cos, 0., 0., 0., 1.,
+    )
 }
 
 impl SpaceShip {
@@ -62,20 +73,13 @@ impl SpaceShip {
             0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         );
         empty_matrix.fill_with_identity();
-        let translation_vector = glm::vec3(0., 0., -6.);
-        // let translation_vector = self.position;
-        // console_log(&format!(" self.position {}", &self.position));
-        let mut model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
-
-        {
-            // Perform rotation
-            let rotation_vector = glm::vec3(0., 0., 1.);
-            model_view_matrix = glm::rotate_normalized_axis(
-                &model_view_matrix,
-                self.rotation,
-                &rotation_vector,
-            );
-        }
+        /* Perform rotation */
+        let rotation_vector = glm::vec3(0., 0., 1.);
+        let model_view_matrix =
+            glm::rotate_normalized_axis(&empty_matrix, self.rotation, &rotation_vector);
+        /* Perform positional movement */
+        let translation_vector = self.position;
+        let model_view_matrix = glm::translate(&model_view_matrix, &translation_vector);
 
         gl.uniform_matrix4fv_with_f32_array(
             Some(&uniform_locations.model_view_matrix),
@@ -112,7 +116,12 @@ impl SpaceShip {
     }
 
     fn update(&mut self, delta_time: f32) {
-        let frame_velocity = self.velocity.scale(delta_time);
+        let frame_velocity = self.velocity.scale(delta_time / 1000.);
+
+        console_log(&format!(
+            "OG vel  {:?} frame_velocity {:?}",
+            &self.velocity, &frame_velocity
+        ));
         self.position += frame_velocity;
     }
 }
@@ -147,7 +156,7 @@ impl RenderObjectTrait for AsteroidCanvas {
         ];
         let vertices = SpaceShip::init_buffers(gl, vertices);
         let mut ship = SpaceShip {
-            position: glm::vec3(0., 0., 0.),
+            position: glm::vec3(0., 0., Z_AXIS),
             velocity: glm::vec3(0., 0., 0.),
             rotation: 0.,
             buffers: Drawable {
@@ -156,8 +165,6 @@ impl RenderObjectTrait for AsteroidCanvas {
                 buffer_vertices: vertices,
             },
         };
-        ship.position.fill_with_identity();
-        ship.velocity.fill_with_identity();
 
         let attribute_locations = AttributeLocationsLocal {
             vertex_position: gl.get_attrib_location(&program, "aVertexPosition"),
@@ -213,15 +220,18 @@ impl RenderObjectTrait for AsteroidCanvas {
     }
 
     fn update(&mut self, delta_time: f32) {
-        console_log(&format!("updating {:?}", &delta_time ));
         if self.input.keyboard_a {
             self.ship.rotation += -0.01 * delta_time;
-        } else if self.input.keyboard_d {
+        }
+        if self.input.keyboard_d {
             self.ship.rotation += 0.01 * delta_time;
         }
-        // if self.input.keyboard_w {
-        //     self.ship.velocity += glm::vec3(1.0, 1.0, 1.0);
-        // }
+        if self.input.keyboard_w {
+            self.ship.velocity += glm::vec3(0.00, 0.01, 0.0);
+        }
+        if self.input.keyboard_s {
+            self.ship.velocity -= glm::vec3(0.00, 0.01, 0.0);
+        }
         self.ship.update(delta_time);
     }
 }
