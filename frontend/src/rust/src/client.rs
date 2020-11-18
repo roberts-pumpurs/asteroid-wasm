@@ -53,6 +53,7 @@ impl GlClient {
 
     #[wasm_bindgen]
     pub fn render(&mut self) {
+
         match &mut self.object {
             Some(obj) => {
                 obj.draw_scene(&self.gl, &self.canvas);

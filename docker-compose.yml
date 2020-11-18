@@ -18,7 +18,7 @@ services:
     user: "${UID}:${GID}"
     build: ./frontend
     container_name: dev-react
-    command: sh -c "yarn install && yarn start"
+    command: sh ./dev.sh
     ports:
       - 3001:3000
     env_file:
@@ -29,10 +29,8 @@ services:
     volumes:
       - ./frontend/:/srv/app
       - /srv/app/node_modules
-      - wasm:/srv/app/src/rust/pkg
     depends_on:
       - node
-      - rust
     restart: on-failure
   db:
     image: neo4j:4.1.4
@@ -61,16 +59,7 @@ services:
       - node
       - react
       - db
-  rust:
-    user: "${UID}:${GID}"
-    build: ./rust
-    command: sh -c 'cargo watch -i .gitignore -i "pkg/*" -s "wasm-pack build --out-dir /srv/app/rust/pkg"'
-    volumes:
-      - ./rust:/srv/app/rust
-      - wasm:/srv/app/rust/pkg
-    restart: on-failure
 volumes:
-  wasm:
   postgres_data:
   media:
   static:

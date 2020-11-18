@@ -1,4 +1,4 @@
-rust/target
+frontend/src/rust/target
 */.vscode
 */node_modules
 */pkg
