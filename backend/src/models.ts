@@ -1,16 +1,25 @@
+/* Simple interfaces */
 export interface User {
-    name: string,
-    surname: string,
-    username: string,
+  name: string,
+  surname: string,
+  username: string,
 }
 
 export interface Country {
-    name: string,
-    population: number,
+  name: string,
+  population: number,
 }
 
 export interface Game {
-    score: number,
-    start: Date,
-    end: Date,
+  score: number,
+  start: Date,
+  end: Date,
+}
+
+/* Composites */
+
+export interface GameListing {
+  game: Game,
+  user: User,
+  country: Country,
 }

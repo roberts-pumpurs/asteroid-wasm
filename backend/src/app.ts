@@ -3,7 +3,9 @@ import cors from 'cors';
 import {
   createCountry, createGame, createUser, getGames, getNumNodes, getUsers, initial,
 } from './database';
-import { Country, Game, User } from './models';
+import {
+  Country, Game, GameListing, User,
+} from './models';
 
 const app = express();
 const port = 8000; // default port to listen
@@ -72,6 +74,40 @@ app.get('/api/users', async (req, res) => {
 });
 
 app.get('/api/games', async (req, res) => {
-  const games = await getGames();
+  const games: Array<GameListing> = await getGames();
   res.send({ games });
+});
+
+interface SingleUserAggregate {
+  user: User,
+  score: number,
+  duration: number,
+  count: number,
+  country: Country
+}
+interface Leaderboard {
+  [key: string]: SingleUserAggregate
+}
+app.get('/api/leaderboards', async (req, res) => {
+  const games: Array<GameListing> = await getGames();
+  const aggregateLeaderbaord: Leaderboard = {};
+
+  games.forEach((el) => {
+    if (!(el.user.username in aggregateLeaderbaord)) {
+      aggregateLeaderbaord[el.user.username] = {
+        score: 0,
+        count: 0,
+        user: el.user,
+        duration: 0,
+        country: { name: '', population: 0 },
+      };
+    }
+    const duration = (new Date(el.game.end).getTime() - new Date(el.game.start).getTime()) / 60000;
+    aggregateLeaderbaord[el.user.username].score += el.game.score;
+    aggregateLeaderbaord[el.user.username].count += 1;
+    aggregateLeaderbaord[el.user.username].duration += duration;
+    aggregateLeaderbaord[el.user.username].country = el.country;
+  });
+
+  res.send(aggregateLeaderbaord);
 });

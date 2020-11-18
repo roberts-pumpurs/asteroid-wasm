@@ -1,5 +1,5 @@
 import neo4j from 'neo4j-driver';
-import { Country, Game, User } from './models';
+import { Country, Game, GameListing, User } from './models';
 
 const driver = neo4j.driver('bolt://db:7687', neo4j.auth.basic(
   process.env.DB_USERNAME || 'neo4j', process.env.DB_PASSWORD || 'password',
@@ -129,11 +129,6 @@ export async function getUsers(
   }
 }
 
-interface GameListing {
-  game: Game,
-  user: User,
-  country: Country,
-}
 export async function getGames(
 ): Promise<Array<GameListing>> {
   const session = driver.session();
@@ -142,10 +137,6 @@ export async function getGames(
     MATCH (g: game)<-[p]-(u: user)-[l]->(c: country)
     RETURN g, u, c
     `, {});
-    console.log(JSON.stringify(createdGame.records));
-    /*
-    Game | user | country
-    */
     return createdGame.records.map(
       (el) => ({
         game: el.get(0).properties,
