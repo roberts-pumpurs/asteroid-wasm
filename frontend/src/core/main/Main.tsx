@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom';
 import { WasmContextConsumer } from 'WasmContext';
 import { Game } from './Game/Game';
+import { GameHistory } from './GameHistory/GameHistory';
 
 export function Main(): React.ReactElement {
   return (
@@ -19,6 +20,7 @@ export function Main(): React.ReactElement {
           }
         </WasmContextConsumer>
       </Route>
+      <Route exact path="/game-history" component={GameHistory} />
     </Switch>
   );
 }
