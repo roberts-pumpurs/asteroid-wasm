@@ -7,6 +7,7 @@ import {
 import { WasmContextConsumer } from 'WasmContext';
 import { Game } from './Game/Game';
 import { GameHistory } from './GameHistory/GameHistory';
+import { LeaderboardComponent } from './Leaderboard/Leaderboard';
 
 export function Main(): React.ReactElement {
   return (
@@ -20,6 +21,7 @@ export function Main(): React.ReactElement {
           }
         </WasmContextConsumer>
       </Route>
+      <Route exact path="/leaderboards" component={LeaderboardComponent} />
       <Route exact path="/game-history" component={GameHistory} />
     </Switch>
   );
