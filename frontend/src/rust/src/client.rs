@@ -1,10 +1,11 @@
-use crate::{programs::asteroid::AsteroidCanvas, canvas::CanvasData};
+use crate::programs::asteroid;
 use crate::programs::box_2d::Box2D;
 use crate::programs::cube::Cube;
 use crate::shaders::fragment::F_SHADER;
 use crate::shaders::vertex::V_SHADER;
 use crate::transform::Transform;
 use crate::RenderableOption;
+use crate::{canvas::CanvasData, programs::asteroid::AsteroidCanvas};
 use crate::{
     gl_setup,
     utils::{console_log, link_program},
@@ -53,7 +54,6 @@ impl GlClient {
 
     #[wasm_bindgen]
     pub fn render(&mut self) {
-
         match &mut self.object {
             Some(obj) => {
                 obj.draw_scene(&self.gl, &self.canvas);
@@ -70,20 +70,32 @@ impl GlClient {
         console_log(&format!("Setting rendarble to {:?}", &opt));
 
         self.is_ready = false;
-        let program: WebGlProgram = link_program(&self.gl, &V_SHADER, &F_SHADER).unwrap();
 
+        let gl: GL = gl_setup::initialize_webgl_context(&self.master_canvas).unwrap();
+        self.gl = gl;
         match opt {
             RenderableOption::Cube => {
+                let program: WebGlProgram = link_program(&self.gl, &V_SHADER, &F_SHADER).unwrap();
+                self.gl.use_program(Some(&program));
                 let object: Box<Cube> =
                     Box::new(RenderObjectTrait::new(&self.gl, program, transform.clone()));
                 self.object = Some(object);
             }
             RenderableOption::Box2D => {
+                let program: WebGlProgram = link_program(&self.gl, &V_SHADER, &F_SHADER).unwrap();
+                self.gl.use_program(Some(&program));
                 let object: Box<Box2D> =
                     Box::new(RenderObjectTrait::new(&self.gl, program, transform.clone()));
                 self.object = Some(object);
             }
             RenderableOption::Asteroid => {
+                let program: WebGlProgram = link_program(
+                    &self.gl,
+                    &asteroid::shaders::V_SHADER,
+                    &asteroid::shaders::F_SHADER,
+                )
+                .unwrap();
+                self.gl.use_program(Some(&program));
                 let object: Box<AsteroidCanvas> =
                     Box::new(RenderObjectTrait::new(&self.gl, program, transform.clone()));
                 self.object = Some(object);

@@ -1,6 +1,8 @@
+pub mod shaders;
 use crate::canvas::CanvasData;
 use crate::input::UserInput;
 use crate::transform::Transform;
+use crate::utils::console_log;
 use crate::RenderObjectTrait;
 use nalgebra_glm as glm;
 use web_sys::WebGlBuffer;
@@ -8,18 +10,21 @@ use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
 use web_sys::WebGlUniformLocation;
 
-use super::{box_2d::AttributeLocations, box_2d::UniformLocations, colors::SingleColor};
+use super::{box_2d::UniformLocations, colors::SingleColor};
+
+pub struct AttributeLocationsLocal {
+    pub vertex_position: i32,
+}
 
 pub struct Drawable {
+    pub item_size: i32,
+    pub num_items: i32,
     pub buffer_vertices: WebGlBuffer,
-    pub buffer_colors: WebGlBuffer,
 }
 
 pub struct SpaceShip {
-    pub speed: i32,
-    pub direction: f32,
-    pub location_x: f32,
-    pub location_y: f32,
+    pub velocity: glm::TVec2<f32>,
+    pub position: glm::TVec2<f32>,
     pub buffers: Drawable,
 }
 
@@ -27,12 +32,13 @@ impl SpaceShip {
     pub fn draw(
         &self,
         gl: &GL,
-        attribute_locations: &AttributeLocations,
+        attribute_locations: &AttributeLocationsLocal,
         uniform_locations: &UniformLocations,
+        projection_matrix: glm::TMat4<f32>,
     ) {
+        console_log("Drawing SpaceShip");
         {
             // Set vertices
-            let number_components = 2;
             let buffer_type = GL::FLOAT;
             let normalize = false;
             let stride = 0;
@@ -41,50 +47,55 @@ impl SpaceShip {
             gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.buffers.buffer_vertices));
             gl.vertex_attrib_pointer_with_i32(
                 attribute_locations.vertex_position as u32,
-                number_components,
+                self.buffers.item_size,
                 buffer_type,
                 normalize,
                 stride,
                 offset,
             );
-            gl.enable_vertex_attrib_array(attribute_locations.vertex_position as u32);
+            // gl.enable_vertex_attrib_array(attribute_locations.vertex_position as u32);
         }
 
-        let transpose = false;
+        let mut empty_matrix = glm::mat4x4(
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+        );
+        empty_matrix.fill_with_identity();
+        // let translation_vector = glm::vec3(0., 0., -6.);
+        let translation_vector = glm::vec3(0., 0., -6.);
+        let model_view_matrix = glm::translate(&empty_matrix, &translation_vector);
+
+        gl.uniform_matrix4fv_with_f32_array(
+            Some(&uniform_locations.model_view_matrix),
+            false,
+            model_view_matrix.as_slice(),
+        );
+        gl.uniform_matrix4fv_with_f32_array(
+            Some(&uniform_locations.projection_matrix),
+            false,
+            projection_matrix.as_slice(),
+        );
+
         let offset = 0;
-        let vertex_count = 4;
-        gl.draw_arrays(GL::LINES, offset, vertex_count);
+        gl.draw_arrays(GL::LINES, offset, self.buffers.num_items);
     }
 
-    fn init_buffers(gl: &GL, vertices: Vec<f32>) -> (WebGlBuffer, WebGlBuffer) {
+    fn init_buffers(gl: &GL, vertices: Vec<(f32, f32, f32)>) -> WebGlBuffer {
         let position_buffer = gl.create_buffer().unwrap();
         gl.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
 
+        let mut result_array: Vec<f32> = Vec::new();
+        for elem in vertices.iter() {
+            result_array.push(elem.0 / 3.);
+            result_array.push(elem.1 / 3.);
+            result_array.push(elem.2);
+        }
+        console_log(&format!("{:?}", &result_array));
         unsafe {
-            let vert_array = js_sys::Float32Array::view(&vertices);
+            let vert_array = js_sys::Float32Array::view(&result_array);
             gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &vert_array, GL::STATIC_DRAW);
         }
 
-        let color_buffer = gl.create_buffer().unwrap();
-        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&color_buffer));
-
-        unsafe {
-            let mut returnable: Vec<f32> = vec![];
-            let colors: [SingleColor; 4] = [
-                SingleColor::new(1., 0., 0., 1.),
-                SingleColor::new(1., 0.5, 1., 1.),
-                SingleColor::new(1., 1., 0.5, 1.),
-                SingleColor::new(0., 1., 1., 1.),
-            ];
-            colors.iter().for_each(|p| {
-                p.as_array().iter().for_each(|col| {
-                    returnable.push(col.clone().clone());
-                });
-            });
-            let colors_array = js_sys::Float32Array::view(&returnable);
-            gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &colors_array, GL::STATIC_DRAW);
-        }
-        (position_buffer, color_buffer)
+        position_buffer
     }
 }
 
@@ -95,8 +106,8 @@ pub struct AsteroidCanvas {
     pub transform: Transform,
     // GL
     program: WebGlProgram,
-    pub attribute_locations: AttributeLocations,
-    pub uniform_locations: UniformLocations,
+    attribute_locations: AttributeLocationsLocal,
+    uniform_locations: UniformLocations,
 }
 
 impl RenderObjectTrait for AsteroidCanvas {
@@ -108,30 +119,32 @@ impl RenderObjectTrait for AsteroidCanvas {
         let input = UserInput::new();
 
         // Construct spaceship
-        let vertices: Vec<f32> = vec![-1., -1., 0., 1., 1., -1., -1., -1.];
-        let (vertices, colors) = SpaceShip::init_buffers(gl, vertices);
+        let vertices: Vec<(f32, f32, f32)> = vec![
+            (-1., -1., 0.),
+            (0., 1., 0.),
+            (0., 1., 0.),
+            (1., -1., 0.),
+            (1., -1., 0.),
+            (-1., -1., 0.),
+        ];
+        let vertices = SpaceShip::init_buffers(gl, vertices);
         let ship = SpaceShip {
-            speed: 1,
-            direction: 1.,
-            location_x: 0.,
-            location_y: 0.,
+            position: glm::vec2(0., 0.),
+            velocity: glm::vec2(0., 0.),
             buffers: Drawable {
+                item_size: 3,
+                num_items: 6,
                 buffer_vertices: vertices,
-                buffer_colors: colors,
             },
         };
 
-        let attribute_locations = AttributeLocations {
+        let attribute_locations = AttributeLocationsLocal {
             vertex_position: gl.get_attrib_location(&program, "aVertexPosition"),
-            vertex_color: gl.get_attrib_location(&program, "aVertexColor"),
         };
+        gl.enable_vertex_attrib_array(attribute_locations.vertex_position as u32);
         let uniform_locations = UniformLocations {
-            projection_matrix: gl
-                .get_uniform_location(&program, "uProjectionMatrix")
-                .unwrap(),
-            model_view_matrix: gl
-                .get_uniform_location(&program, "uModelViewMatrix")
-                .unwrap(),
+            projection_matrix: gl.get_uniform_location(&program, "uPMatrix").unwrap(),
+            model_view_matrix: gl.get_uniform_location(&program, "uMVMatrix").unwrap(),
         };
         Self {
             ship,
@@ -162,12 +175,19 @@ impl RenderObjectTrait for AsteroidCanvas {
         gl.enable(GL::DEPTH_TEST);
         gl.depth_func(GL::LEQUAL);
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
-        // TODO Apply movement changes to Spaceship
-        self.ship
-            .draw(gl, &self.attribute_locations, &self.uniform_locations);
 
-        let offset = 0;
-        let vertex_count = 4;
-        gl.draw_arrays(GL::TRIANGLE_STRIP, offset, vertex_count);
+        let z_near: f32 = 0.1;
+        let z_far: f32 = 100.0;
+
+        let projection_matrix =
+            glm::perspective(canvas.get_aspect(), canvas.get_fov(), z_near, z_far);
+
+        // TODO Apply movement changes to Spaceship
+        self.ship.draw(
+            gl,
+            &self.attribute_locations,
+            &self.uniform_locations,
+            projection_matrix,
+        );
     }
 }
