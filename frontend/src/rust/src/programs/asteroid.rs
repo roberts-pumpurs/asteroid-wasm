@@ -25,11 +25,12 @@ pub struct Drawable {
 pub struct SpaceShip {
     pub velocity: glm::TVec3<f32>,
     pub position: glm::TVec3<f32>,
+    pub model_view_matrix: glm::TMat4<f32>,
     pub rotation: f32,
     pub buffers: Drawable,
 }
 
-const Z_AXIS: f32 = -6.;
+const Z_AXIS: f32 = 0.;
 
 pub fn get_matrix_rotation(theta: f32) -> glm::Mat3 {
     let theta_rad = theta * PI / 180.;
@@ -42,7 +43,7 @@ pub fn get_matrix_rotation(theta: f32) -> glm::Mat3 {
 
 impl SpaceShip {
     pub fn draw(
-        &self,
+        &mut self,
         gl: &GL,
         attribute_locations: &AttributeLocationsLocal,
         uniform_locations: &UniformLocations,
@@ -73,18 +74,19 @@ impl SpaceShip {
             0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         );
         empty_matrix.fill_with_identity();
+
         /* Perform rotation */
-        let rotation_vector = glm::vec3(0., 0., 1.);
-        let model_view_matrix =
-            glm::rotate_normalized_axis(&empty_matrix, self.rotation, &rotation_vector);
+        let rot = get_matrix_rotation(self.rotation);
+        self.model_view_matrix = self.model_view_matrix * glm::mat3_to_mat4(&rot);
+
         /* Perform positional movement */
         let translation_vector = self.position;
-        let model_view_matrix = glm::translate(&model_view_matrix, &translation_vector);
+        self.model_view_matrix = glm::translate(&self.model_view_matrix, &translation_vector);
 
         gl.uniform_matrix4fv_with_f32_array(
             Some(&uniform_locations.model_view_matrix),
             false,
-            model_view_matrix.as_slice(),
+            self.model_view_matrix.as_slice(),
         );
         gl.uniform_matrix4fv_with_f32_array(
             Some(&uniform_locations.projection_matrix),
@@ -158,6 +160,7 @@ impl RenderObjectTrait for AsteroidCanvas {
         let mut ship = SpaceShip {
             position: glm::vec3(0., 0., Z_AXIS),
             velocity: glm::vec3(0., 0., 0.),
+            model_view_matrix: glm::mat4(0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.),
             rotation: 0.,
             buffers: Drawable {
                 item_size: 3,
@@ -165,6 +168,8 @@ impl RenderObjectTrait for AsteroidCanvas {
                 buffer_vertices: vertices,
             },
         };
+        ship.model_view_matrix.fill_with_identity();
+        ship.model_view_matrix = glm::translate(&ship.model_view_matrix, &glm::vec3(0., 0., -6.));
 
         let attribute_locations = AttributeLocationsLocal {
             vertex_position: gl.get_attrib_location(&program, "aVertexPosition"),
@@ -210,7 +215,12 @@ impl RenderObjectTrait for AsteroidCanvas {
         let projection_matrix =
             glm::perspective(canvas.get_aspect(), canvas.get_fov(), z_near, z_far);
 
-        // TODO Apply movement changes to Spaceship
+        /* Apply drag */
+
+        self.ship.velocity = self.ship.velocity.scale(0.0005);
+        self.ship.rotation = self.ship.rotation * 0.95;
+
+        /* Draw elements */
         self.ship.draw(
             gl,
             &self.attribute_locations,
@@ -221,17 +231,19 @@ impl RenderObjectTrait for AsteroidCanvas {
 
     fn update(&mut self, delta_time: f32) {
         if self.input.keyboard_a {
-            self.ship.rotation += -0.01 * delta_time;
+            self.ship.rotation += 0.01 * delta_time;
         }
         if self.input.keyboard_d {
-            self.ship.rotation += 0.01 * delta_time;
+            self.ship.rotation += -0.01 * delta_time;
         }
         if self.input.keyboard_w {
             self.ship.velocity += glm::vec3(0.00, 0.01, 0.0);
         }
         if self.input.keyboard_s {
             self.ship.velocity -= glm::vec3(0.00, 0.01, 0.0);
+            // TODO Make sure the ship doesn't go backwards
         }
+        // self.ship.velocity -= glm::vec3(0.00, 0.01, 0.0);
         self.ship.update(delta_time);
     }
 }
