@@ -49,8 +49,6 @@ impl SpaceShip {
         uniform_locations: &UniformLocations,
         projection_matrix: glm::TMat4<f32>,
     ) {
-        console_log("Drawing SpaceShip");
-
         {
             // Set vertices
             let buffer_type = GL::FLOAT;
@@ -82,6 +80,23 @@ impl SpaceShip {
         /* Perform positional movement */
         let translation_vector = self.position;
         self.model_view_matrix = glm::translate(&self.model_view_matrix, &translation_vector);
+
+        /* Apply screen wrapping */
+        let x_coord = self.model_view_matrix.get(12).unwrap();
+        let y_coord = self.model_view_matrix.get(13).unwrap();
+
+        // console_log(&format!(
+        //     "x_coord {:#?} y_coord {:#?}\n",
+        //     &x_coord, &y_coord,
+        // ));
+        let mut new_mvm = self.model_view_matrix.clone_owned();
+        if x_coord.abs() > 4. {
+            new_mvm[12] = -x_coord;
+        }
+        if y_coord.abs() > 2.6 {
+            new_mvm[13] = -y_coord;
+        }
+        self.model_view_matrix = new_mvm;
 
         gl.uniform_matrix4fv_with_f32_array(
             Some(&uniform_locations.model_view_matrix),
@@ -119,12 +134,14 @@ impl SpaceShip {
 
     fn update(&mut self, delta_time: f32) {
         let frame_velocity = self.velocity.scale(delta_time / 1000.);
-
-        console_log(&format!(
-            "OG vel  {:?} frame_velocity {:?}",
-            &self.velocity, &frame_velocity
-        ));
         self.position += frame_velocity;
+
+        // console_log(&format!(
+        //     "self.position {:?}",
+        //     &self.position
+        // ));
+        // conso
+        /* Wrap spaceship */
     }
 }
 
@@ -151,20 +168,27 @@ impl RenderObjectTrait for AsteroidCanvas {
         let vertices: Vec<(f32, f32, f32)> = vec![
             (-1., -1., 0.),
             (0., 1., 0.),
+
             (0., 1., 0.),
             (1., -1., 0.),
+
             (1., -1., 0.),
+            (0., -0.5, 0.),
+
+            (0., -0.5, 0.),
             (-1., -1., 0.),
         ];
         let vertices = SpaceShip::init_buffers(gl, vertices);
         let mut ship = SpaceShip {
             position: glm::vec3(0., 0., Z_AXIS),
             velocity: glm::vec3(0., 0., 0.),
-            model_view_matrix: glm::mat4(0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.),
+            model_view_matrix: glm::mat4(
+                0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            ),
             rotation: 0.,
             buffers: Drawable {
                 item_size: 3,
-                num_items: 6,
+                num_items: 8,
                 buffer_vertices: vertices,
             },
         };
@@ -214,7 +238,7 @@ impl RenderObjectTrait for AsteroidCanvas {
 
         let projection_matrix =
             glm::perspective(canvas.get_aspect(), canvas.get_fov(), z_near, z_far);
-
+        // console_log(&format!("canvas.get_aspect() {:?}", &canvas.get_aspect()));
         /* Apply drag */
 
         self.ship.velocity = self.ship.velocity.scale(0.0005);
@@ -241,9 +265,7 @@ impl RenderObjectTrait for AsteroidCanvas {
         }
         if self.input.keyboard_s {
             self.ship.velocity -= glm::vec3(0.00, 0.01, 0.0);
-            // TODO Make sure the ship doesn't go backwards
         }
-        // self.ship.velocity -= glm::vec3(0.00, 0.01, 0.0);
         self.ship.update(delta_time);
     }
 }
