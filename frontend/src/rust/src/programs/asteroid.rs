@@ -1,4 +1,5 @@
 pub mod shaders;
+pub mod ship;
 use crate::canvas::CanvasData;
 use crate::input::UserInput;
 use crate::transform::Transform;
@@ -10,7 +11,38 @@ use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
 
+use self::ship::{Bullet, SpaceShip};
+
 use super::box_2d::UniformLocations;
+
+const Z_OFFSET: f32 = -8.;
+
+pub struct GameObject {
+    pub velocity: glm::TVec3<f32>,
+    pub position: glm::TVec3<f32>,
+    pub model_view_matrix: glm::TMat4<f32>,
+    pub rotation: f32,
+    pub buffers: Drawable,
+}
+
+impl GameObject {
+    pub fn new(buffers: Drawable, offset_z: f32) -> Self {
+
+        let mut s = Self {
+            position: glm::vec3(0., 0., 0.),
+            velocity: glm::vec3(0., 0., 0.),
+            model_view_matrix: glm::mat4(
+                0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            ),
+            rotation: 0.,
+            buffers,
+        };
+        s.model_view_matrix.fill_with_identity();
+        s.model_view_matrix =
+            glm::translate(&s.model_view_matrix, &glm::vec3(0., 0., offset_z));
+        s
+    }
+}
 
 pub struct AttributeLocationsLocal {
     pub vertex_position: i32,
@@ -22,15 +54,16 @@ pub struct Drawable {
     pub buffer_vertices: WebGlBuffer,
 }
 
-pub struct SpaceShip {
-    pub velocity: glm::TVec3<f32>,
-    pub position: glm::TVec3<f32>,
-    pub model_view_matrix: glm::TMat4<f32>,
-    pub rotation: f32,
-    pub buffers: Drawable,
-}
+impl Drawable {
+    pub fn new(item_size: i32, num_items: i32, buffer_vertices: WebGlBuffer) -> Self {
+        Self {
+            item_size,
+            num_items,
+            buffer_vertices,
+        }
+    }
 
-const Z_AXIS: f32 = 0.;
+}
 
 pub fn get_matrix_rotation(theta: f32) -> glm::Mat3 {
     let theta_rad = theta * PI / 180.;
@@ -41,7 +74,7 @@ pub fn get_matrix_rotation(theta: f32) -> glm::Mat3 {
     )
 }
 
-impl SpaceShip {
+impl GameObject {
     pub fn draw(
         &mut self,
         gl: &GL,
@@ -112,42 +145,12 @@ impl SpaceShip {
         let offset = 0;
         gl.draw_arrays(GL::LINES, offset, self.buffers.num_items);
     }
-
-    fn init_buffers(gl: &GL, vertices: Vec<(f32, f32, f32)>) -> WebGlBuffer {
-        let position_buffer = gl.create_buffer().unwrap();
-        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
-
-        let mut result_array: Vec<f32> = Vec::new();
-        for elem in vertices.iter() {
-            result_array.push(elem.0 / 3.);
-            result_array.push(elem.1 / 3.);
-            result_array.push(elem.2);
-        }
-        console_log(&format!("{:?}", &result_array));
-        unsafe {
-            let vert_array = js_sys::Float32Array::view(&result_array);
-            gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &vert_array, GL::STATIC_DRAW);
-        }
-
-        position_buffer
-    }
-
-    fn update(&mut self, delta_time: f32) {
-        let frame_velocity = self.velocity.scale(delta_time / 1000.);
-        self.position += frame_velocity;
-
-        // console_log(&format!(
-        //     "self.position {:?}",
-        //     &self.position
-        // ));
-        // conso
-        /* Wrap spaceship */
-    }
 }
 
 pub struct AsteroidCanvas {
     // Game itself
     pub ship: SpaceShip,
+    pub bullets: Vec<Bullet>,
     pub input: UserInput,
     pub transform: Transform,
     // GL
@@ -163,37 +166,7 @@ impl RenderObjectTrait for AsteroidCanvas {
     {
         // Store metadata
         let input = UserInput::new();
-
-        // Construct spaceship
-        let vertices: Vec<(f32, f32, f32)> = vec![
-            (-1., -1., 0.),
-            (0., 1., 0.),
-
-            (0., 1., 0.),
-            (1., -1., 0.),
-
-            (1., -1., 0.),
-            (0., -0.5, 0.),
-
-            (0., -0.5, 0.),
-            (-1., -1., 0.),
-        ];
-        let vertices = SpaceShip::init_buffers(gl, vertices);
-        let mut ship = SpaceShip {
-            position: glm::vec3(0., 0., Z_AXIS),
-            velocity: glm::vec3(0., 0., 0.),
-            model_view_matrix: glm::mat4(
-                0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-            ),
-            rotation: 0.,
-            buffers: Drawable {
-                item_size: 3,
-                num_items: 8,
-                buffer_vertices: vertices,
-            },
-        };
-        ship.model_view_matrix.fill_with_identity();
-        ship.model_view_matrix = glm::translate(&ship.model_view_matrix, &glm::vec3(0., 0., -6.));
+        let mut ship = SpaceShip::new(gl, Z_OFFSET);
 
         let attribute_locations = AttributeLocationsLocal {
             vertex_position: gl.get_attrib_location(&program, "aVertexPosition"),
@@ -204,6 +177,7 @@ impl RenderObjectTrait for AsteroidCanvas {
             model_view_matrix: gl.get_uniform_location(&program, "uMVMatrix").unwrap(),
         };
         Self {
+            bullets: vec![],
             ship,
             input,
             transform,
@@ -238,34 +212,49 @@ impl RenderObjectTrait for AsteroidCanvas {
 
         let projection_matrix =
             glm::perspective(canvas.get_aspect(), canvas.get_fov(), z_near, z_far);
-        // console_log(&format!("canvas.get_aspect() {:?}", &canvas.get_aspect()));
-        /* Apply drag */
 
-        self.ship.velocity = self.ship.velocity.scale(0.0005);
-        self.ship.rotation = self.ship.rotation * 0.95;
+        /* Apply drag */
+        self.ship.0.velocity = self.ship.0.velocity.scale(0.0005);
+        self.ship.0.rotation = self.ship.0.rotation * 0.95;
 
         /* Draw elements */
-        self.ship.draw(
+        self.ship.0.draw(
             gl,
             &self.attribute_locations,
             &self.uniform_locations,
             projection_matrix,
         );
+
+        console_log(&format!("Bullets {:?}", &self.bullets.len()));
+        for bullet in self.bullets.iter_mut() {
+            bullet.0.draw(
+                gl,
+                &self.attribute_locations,
+                &self.uniform_locations,
+                projection_matrix,
+            )
+        }
     }
 
-    fn update(&mut self, delta_time: f32) {
+    fn update(&mut self, delta_time: f32, gl: &GL) {
         if self.input.keyboard_a {
-            self.ship.rotation += 0.01 * delta_time;
+            self.ship.0.rotation += 0.01 * delta_time;
         }
         if self.input.keyboard_d {
-            self.ship.rotation += -0.01 * delta_time;
+            self.ship.0.rotation += -0.01 * delta_time;
         }
         if self.input.keyboard_w {
-            self.ship.velocity += glm::vec3(0.00, 0.01, 0.0);
+            self.ship.0.velocity += glm::vec3(0.00, 0.01, 0.0);
         }
         if self.input.keyboard_s {
-            self.ship.velocity -= glm::vec3(0.00, 0.01, 0.0);
+            self.ship.0.velocity -= glm::vec3(0.00, 0.01, 0.0);
+        }
+        if self.input.spacebar {
+            self.bullets.push(Bullet::new(gl, Z_OFFSET));
         }
         self.ship.update(delta_time);
+        // for bullet in self.bullets.iter_mut() {
+        //     bullet.update(delta_time);
+        // }
     }
 }

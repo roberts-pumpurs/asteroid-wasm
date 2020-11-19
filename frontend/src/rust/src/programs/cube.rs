@@ -317,7 +317,7 @@ impl RenderObjectTrait for Cube {
             self.last_rotation = now;
         }
     }
-    fn update(&mut self, _: f32) {
+    fn update(&mut self, _: f32, _: &GL) {
         // todo!()
     }
 }
