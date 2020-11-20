@@ -59,6 +59,10 @@ impl GameObject {
         let velocity = self.direction * self.speed * delta_time;
         self.position += velocity;
     }
+
+    // pub fn does_overlap(obj1: &GameObject, obj2: &GameObject) -> bool {
+
+    // }
 }
 
 pub struct AttributeLocationsLocal {
@@ -269,10 +273,10 @@ impl RenderObjectTrait for AsteroidCanvas {
             self.ship.obj.angle += 5.;
         }
         if self.input.keyboard_w {
-            self.ship.obj.speed += 0.0005;
+            self.ship.obj.speed += 0.0001;
         }
         if self.input.keyboard_s {
-            self.ship.obj.speed -= 0.0005;
+            self.ship.obj.speed -= 0.0001;
         }
         /* Generate bullets */
         if self.input.spacebar {
@@ -290,7 +294,7 @@ impl RenderObjectTrait for AsteroidCanvas {
 
         let mut rng = rand::thread_rng();
         if self.asteroids.len() < 5 {
-            let mut asteroid = Asteroid::new(gl, Z_OFFSET);
+            let mut asteroid = Asteroid::new(gl, Z_OFFSET, 0.9);
 
             let rand_x = rng.gen_range(-1., 1.);
             let rand_y = rng.gen_range(-1., 1.);
@@ -306,6 +310,7 @@ impl RenderObjectTrait for AsteroidCanvas {
             asteroid.obj.angle = rng.gen_range(0, 360) as f32;
 
             self.asteroids.push(asteroid);
+            console_log("Pushing asteroid");
         }
 
         /* Position updates */
@@ -324,8 +329,10 @@ impl RenderObjectTrait for AsteroidCanvas {
                 || ((el.0.position.x() / 11.).abs() * 1.6 > 1.)
         });
         self.asteroids.retain(|el| {
-            !((el.obj.position.y() / 11.).abs() + 0.6 > 1.)
-                || ((el.obj.position.x() / 11.).abs() * 1.6 > 1.)
+            let drop = ((el.obj.position.y() / 11.).abs() + 0.6 > 1.)
+                || ((el.obj.position.x() / 11.).abs() * 1.6 > 1.);
+            if drop {console_log("Despawning asteroid"); }
+            !drop
         });
     }
 }

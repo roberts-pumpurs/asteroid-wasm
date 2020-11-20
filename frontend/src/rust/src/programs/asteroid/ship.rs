@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use crate::programs::asteroid::get_vec2_from_vec3;
 use crate::programs::asteroid::WebGlBuffer;
 use crate::utils::console_log;
@@ -65,10 +67,9 @@ impl SpaceShip {
         if (self.obj.position.x() / 11.).abs() * 1.6 > 1. {
             self.obj.position.set_x(-self.obj.position.x());
         }
-        // self.obj.position.x().rem_euclid(rhs)
 
         /* Apply drag */
-        self.obj.speed = self.obj.speed * 0.9;
+        self.obj.speed = self.obj.speed * 0.99;
     }
 }
 
@@ -107,59 +108,59 @@ impl Bullet {
         self.0.update(delta_time);
     }
 }
+
 pub struct Asteroid {
     pub obj: GameObject,
 }
 
+
+// RADIUSES = [4, 2.8, 1.5];
 impl Asteroid {
-    pub fn new(gl: &GL, offset_z: f32) -> Self {
-        let gl_buffer = Self::init_buffers(gl);
+
+    pub fn new(gl: &GL, offset_z: f32, radius: f32) -> Self {
+        let gl_buffer = Self::init_buffers(gl, radius);
         let buffers = Drawable::new(gl_buffer.0, gl_buffer.1, gl_buffer.2);
         let g_object = GameObject::new(buffers, offset_z);
         Self { obj: g_object }
     }
 
-    fn init_buffers(gl: &GL) -> (i32, i32, WebGlBuffer) {
+    fn init_buffers(gl: &GL, radius: f32) -> (i32, i32, WebGlBuffer) {
         let position_buffer = gl.create_buffer().unwrap();
         gl.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
 
         // Construct asteroid
         let mut rng = rand::thread_rng();
-        let rand_x = rng.gen_range(-300., 300.);
-        let rand_y = rng.gen_range(-300., 300.);
-
-        let radius = 1. + rng.gen_range(0., 1.);
-
-        let mut points: Vec<f32> = vec![];
-        let t = 0;
-        let x_first = (radius + (t as f32).cos()) * rng.gen_range(0.5, 1.5);
-        let y_first = (radius + (t as f32).sin()) * rng.gen_range(0.5, 1.5);
-        points.push(x_first);
-        points.push(y_first);
-        points.push(0.);
-        for t in (30..360).step_by(30) {
-            let x = (radius + (t as f32).cos()) * rng.gen_range(0.5, 1.5);
-            let y = (radius + (t as f32).sin()) * rng.gen_range(0.5, 1.5);
-            points.push(x);
-            points.push(y);
-            points.push(0.);
-
-            points.push(x);
-            points.push(y);
-            points.push(0.);
+        let mut points: Vec<(f32, f32, f32)> = vec![];
+        for i in 0..12 {
+            let rotation = (i as f32 / 12.) as f32 * 2. * PI;
+            let x = rotation.cos() + rng.gen_range(0.1, 0.6);
+            let y = rotation.sin() + rng.gen_range(0.1, 0.6);;
+            let vert_dist = radius + rng.gen_range(0.3 * radius, 0.6 * radius);
+            points.push((x * vert_dist, y * vert_dist, 0.));
         }
-        points.push(x_first);
-        points.push(y_first);
-        points.push(0.);
-        let first = points.get(0).unwrap().clone();
-        points.push(first);
 
+        let mut result_array: Vec<f32> = Vec::new();
+        let first =points.get(0).unwrap().clone();
+        result_array.push(first.0);
+        result_array.push(first.1);
+        result_array.push(first.2);
+        for elem in points.iter() {
+            result_array.push(elem.0);
+            result_array.push(elem.1);
+            result_array.push(elem.2);
+            result_array.push(elem.0);
+            result_array.push(elem.1);
+            result_array.push(elem.2);
+        }
+        result_array.push(first.0);
+        result_array.push(first.1);
+        result_array.push(first.2);
         unsafe {
-            let vert_array = js_sys::Float32Array::view(&points);
+            let vert_array = js_sys::Float32Array::view(&result_array);
             gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &vert_array, GL::STATIC_DRAW);
         }
 
-        (3, (points.len() / 3) as i32, position_buffer)
+        (3, points.len() as i32 * 2 + 2, position_buffer)
     }
 
     pub fn update(&mut self, delta_time: f32) {
