@@ -3,10 +3,12 @@ pub mod ship;
 pub mod transform;
 use crate::canvas::CanvasData;
 use crate::input::UserInput;
+use crate::programs::asteroid::ship::Asteroid;
 use crate::transform::Transform as UserTransform;
 use crate::utils::console_log;
 use crate::RenderObjectTrait;
 use core::f32::consts::PI;
+use rand::prelude::*;
 use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
@@ -43,9 +45,19 @@ impl GameObject {
             transformation: transform::Transform::identity(),
             buffers,
         };
-        // s.translation .translate(bevy_math::vec3(0., 0., -6.));
         s
-        // TODO Perform Translation by Z axis
+    }
+
+    pub fn update(&mut self, delta_time: f32) {
+        self.rotation = get_matrix_rotation(self.angle);
+
+        // Update direction matrix
+        let dir3 = self.rotation.mul_vec3(bevy_math::Vec3::new(0., 1., 0.));
+        self.direction = get_vec2_from_vec3(&dir3);
+
+        // Update translation matrix
+        let velocity = self.direction * self.speed * delta_time;
+        self.position += velocity;
     }
 }
 
@@ -144,8 +156,10 @@ pub struct AsteroidCanvas {
     // Game itself
     pub ship: SpaceShip,
     pub bullets: Vec<Bullet>,
+    pub asteroids: Vec<Asteroid>,
     pub input: UserInput,
     pub transform: UserTransform,
+    time_since_last_asteroid: f32,
     // GL
     program: WebGlProgram,
     attribute_locations: AttributeLocationsLocal,
@@ -171,6 +185,8 @@ impl RenderObjectTrait for AsteroidCanvas {
         };
         Self {
             bullets: vec![],
+            asteroids: vec![],
+            time_since_last_asteroid: 0.,
             ship,
             input,
             transform,
@@ -233,9 +249,19 @@ impl RenderObjectTrait for AsteroidCanvas {
                 &canvas,
             )
         }
+        for asteroid in self.asteroids.iter_mut() {
+            asteroid.obj.draw(
+                gl,
+                &self.attribute_locations,
+                &self.uniform_locations,
+                projection_matrix,
+                &canvas,
+            )
+        }
     }
 
     fn update(&mut self, delta_time: f32, gl: &GL, canvas: &CanvasData) {
+        /* Keyboard event capture */
         if self.input.keyboard_a {
             self.ship.obj.angle += -5.;
         }
@@ -248,6 +274,7 @@ impl RenderObjectTrait for AsteroidCanvas {
         if self.input.keyboard_s {
             self.ship.obj.speed -= 0.0005;
         }
+        /* Generate bullets */
         if self.input.spacebar {
             if self.ship.last_shot > 1000. {
                 let mut bullet = Bullet::new(gl, Z_OFFSET);
@@ -259,15 +286,46 @@ impl RenderObjectTrait for AsteroidCanvas {
                 self.ship.last_shot = 0.
             }
         }
+        /* Generate asteroids */
+
+        let mut rng = rand::thread_rng();
+        if self.asteroids.len() < 5 {
+            let mut asteroid = Asteroid::new(gl, Z_OFFSET);
+
+            let rand_x = rng.gen_range(-1., 1.);
+            let rand_y = rng.gen_range(-1., 1.);
+            asteroid.obj.position = bevy_math::Vec2::new(rand_x, rand_y);
+            asteroid.obj.speed = rng.gen_range(0.0005, 0.001);
+            asteroid.obj.scale = bevy_math::Vec3::new(
+                rng.gen_range(0.3, 1.5),
+                rng.gen_range(0.3, 1.5),
+                rng.gen_range(0.3, 1.5),
+            );
+            asteroid.obj.direction =
+                bevy_math::Vec2::new(rng.gen_range(1., 100.), rng.gen_range(1., 100.));
+            asteroid.obj.angle = rng.gen_range(0, 360) as f32;
+
+            self.asteroids.push(asteroid);
+        }
+
+        /* Position updates */
         self.ship.update(delta_time);
 
-        // console_log(&format!("self.ship.last_shot {}", self.ship.last_shot,));
         for bullet in self.bullets.iter_mut() {
             bullet.update(delta_time);
         }
+        for asteroid in self.asteroids.iter_mut() {
+            asteroid.update(delta_time);
+        }
+
+        /* Despawn objects */
         self.bullets.retain(|el| {
             !((el.0.position.y() / 11.).abs() + 0.6 > 1.)
                 || ((el.0.position.x() / 11.).abs() * 1.6 > 1.)
+        });
+        self.asteroids.retain(|el| {
+            !((el.obj.position.y() / 11.).abs() + 0.6 > 1.)
+                || ((el.obj.position.x() / 11.).abs() * 1.6 > 1.)
         });
     }
 }

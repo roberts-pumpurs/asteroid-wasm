@@ -15,7 +15,7 @@ lazy_static = "1.4.0"
 nalgebra-glm = "0.9"
 bevy_math = "0.3"
 wasm-bindgen = {version = "0.2.68"}
-
+rand = {version = "0.7.3",  features = ["wasm-bindgen"] }
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
 # all the `std::fmt` and `std::panicking` infrastructure, so isn't great for

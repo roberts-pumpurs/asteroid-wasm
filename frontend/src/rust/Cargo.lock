@@ -65,6 +65,7 @@ dependencies = [
  "cfg-if",
  "libc",
  "wasi",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -325,6 +326,7 @@ dependencies = [
  "js-sys",
  "lazy_static",
  "nalgebra-glm",
+ "rand",
  "wasm-bindgen",
  "wasm-bindgen-test",
  "web-sys",
