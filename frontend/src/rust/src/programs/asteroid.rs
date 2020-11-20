@@ -293,11 +293,24 @@ impl RenderObjectTrait for AsteroidCanvas {
         /* Generate asteroids */
 
         let mut rng = rand::thread_rng();
-        if self.asteroids.len() < 5 {
+        if self.asteroids.len() < 15 {
             let mut asteroid = Asteroid::new(gl, Z_OFFSET, 0.9);
 
-            let rand_x = rng.gen_range(-1., 1.);
-            let rand_y = rng.gen_range(-1., 1.);
+            // TODO Generate from the side of the screen
+            let rand_x = if rand::random() {
+                // left side
+                -8.
+            } else {
+                // right side
+                8.
+            };
+            let rand_y = if rand::random() {
+                // below
+                -5.
+            } else {
+                // above
+                5.
+            };
             asteroid.obj.position = bevy_math::Vec2::new(rand_x, rand_y);
             asteroid.obj.speed = rng.gen_range(0.0005, 0.001);
             asteroid.obj.scale = bevy_math::Vec3::new(
@@ -329,8 +342,8 @@ impl RenderObjectTrait for AsteroidCanvas {
                 || ((el.0.position.x() / 11.).abs() * 1.6 > 1.)
         });
         self.asteroids.retain(|el| {
-            let drop = ((el.obj.position.y() / 11.).abs() + 0.6 > 1.)
-                || ((el.obj.position.x() / 11.).abs() * 1.6 > 1.);
+            let drop = ((el.obj.position.y() / 11.).abs() + 0.6 > 1.3)
+                || ((el.obj.position.x() / 11.).abs() * 1.6 > 1.3);
             if drop {console_log("Despawning asteroid"); }
             !drop
         });
