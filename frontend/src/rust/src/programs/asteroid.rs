@@ -15,8 +15,7 @@ use self::ship::{Bullet, SpaceShip};
 
 use super::box_2d::UniformLocations;
 
-use nalgebra_glm as glm;
-const Z_OFFSET: f32 = -6.;
+const Z_OFFSET: f32 = -10.;
 
 pub struct GameObject {
     pub angle: f32,
@@ -119,16 +118,10 @@ impl GameObject {
         self.transformation.set_translation(bevy_math::Vec3::new(
             self.position.x(),
             self.position.y(),
-            -10.,
+            Z_OFFSET,
         ));
-        // .set_translation(bevy_math::Vec3::new(self.position.x(), self.position.y(), -1.));
         self.transformation.set_rotation(rot);
         self.transformation.set_non_uniform_scale(self.scale);
-
-        console_log(&format!(
-            "self.position {:?}|\n canvas x {:?} y {:?} ",
-            &self.position, canvas.width, canvas.height
-        ));
 
         gl.uniform_matrix4fv_with_f32_array(
             Some(&uniform_locations.model_view_matrix),
@@ -222,7 +215,7 @@ impl RenderObjectTrait for AsteroidCanvas {
         );
 
         /* Draw elements */
-        self.ship.0.draw(
+        self.ship.obj.draw(
             gl,
             &self.attribute_locations,
             &self.uniform_locations,
@@ -244,33 +237,37 @@ impl RenderObjectTrait for AsteroidCanvas {
 
     fn update(&mut self, delta_time: f32, gl: &GL, canvas: &CanvasData) {
         if self.input.keyboard_a {
-            self.ship.0.angle += -5.;
+            self.ship.obj.angle += -5.;
         }
         if self.input.keyboard_d {
-            self.ship.0.angle += 5.;
+            self.ship.obj.angle += 5.;
         }
         if self.input.keyboard_w {
-            self.ship.0.speed += 0.0005;
+            self.ship.obj.speed += 0.0005;
         }
         if self.input.keyboard_s {
-            self.ship.0.speed -= 0.0005;
+            self.ship.obj.speed -= 0.0005;
         }
         if self.input.spacebar {
-            self.bullets.push(Bullet::new(gl, Z_OFFSET));
+            if self.ship.last_shot > 1000. {
+                let mut bullet = Bullet::new(gl, Z_OFFSET);
+                bullet.0.direction = self.ship.obj.direction;
+                bullet.0.angle = self.ship.obj.angle;
+                bullet.0.position = self.ship.obj.position;
+                bullet.0.speed = 0.01;
+                self.bullets.push(bullet);
+                self.ship.last_shot = 0.
+            }
         }
-        self.ship.update(
-            delta_time,
-            canvas.width / canvas.height,
-            canvas.height / canvas.width,
-        );
+        self.ship.update(delta_time);
 
-        console_log(&format!(
-            "aspect X {} aspect Y {}",
-            canvas.width / canvas.height,
-            canvas.height / canvas.width,
-        ));
-        // for bullet in self.bullets.iter_mut() {
-        //     bullet.update(delta_time);
-        // }
+        // console_log(&format!("self.ship.last_shot {}", self.ship.last_shot,));
+        for bullet in self.bullets.iter_mut() {
+            bullet.update(delta_time);
+        }
+        self.bullets.retain(|el| {
+            !((el.0.position.y() / 11.).abs() + 0.6 > 1.)
+                || ((el.0.position.x() / 11.).abs() * 1.6 > 1.)
+        });
     }
 }

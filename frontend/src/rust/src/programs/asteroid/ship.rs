@@ -8,14 +8,20 @@ use web_sys::WebGlRenderingContext as GL;
 
 use super::get_matrix_rotation;
 
-pub struct SpaceShip(pub GameObject);
+pub struct SpaceShip {
+    pub obj: GameObject,
+    pub last_shot: f32,
+}
 
 impl SpaceShip {
     pub fn new(gl: &GL, offset_z: f32) -> Self {
         let gl_buffer = SpaceShip::init_buffers(gl);
         let buffers = Drawable::new(gl_buffer.0, gl_buffer.1, gl_buffer.2);
         let g_object = GameObject::new(buffers, offset_z);
-        Self(g_object)
+        Self {
+            obj: g_object,
+            last_shot: 0.,
+        }
     }
 
     fn init_buffers(gl: &GL) -> (i32, i32, WebGlBuffer) {
@@ -48,30 +54,31 @@ impl SpaceShip {
         (3, 8, position_buffer)
     }
 
-    pub fn update(&mut self, delta_time: f32, aspect_x: f32, aspect_y: f32) {
+    pub fn update(&mut self, delta_time: f32) {
+        self.last_shot += delta_time;
         // Update matrix values
         // Update rotation matrix
-        self.0.rotation = get_matrix_rotation(self.0.angle);
+        self.obj.rotation = get_matrix_rotation(self.obj.angle);
 
         // Update direction matrix
-        let dir3 = self.0.rotation.mul_vec3(bevy_math::Vec3::new(0., 1., 0.));
-        self.0.direction = get_vec2_from_vec3(&dir3);
+        let dir3 = self.obj.rotation.mul_vec3(bevy_math::Vec3::new(0., 1., 0.));
+        self.obj.direction = get_vec2_from_vec3(&dir3);
 
         // Update translation matrix
-        let velocity = self.0.direction * self.0.speed * delta_time;
-        self.0.position += velocity;
+        let velocity = self.obj.direction * self.obj.speed * delta_time;
+        self.obj.position += velocity;
 
         /* Wrap player */
-        if (self.0.position.y() / 11.).abs() + aspect_y > 1. {
-            self.0.position.set_y(-self.0.position.y());
+        if (self.obj.position.y() / 11.).abs() + 0.6 > 1. {
+            self.obj.position.set_y(-self.obj.position.y());
         }
-        if (self.0.position.x() / 11.).abs() * aspect_x > 1. {
-            self.0.position.set_x(-self.0.position.x());
+        if (self.obj.position.x() / 11.).abs() * 1.6 > 1. {
+            self.obj.position.set_x(-self.obj.position.x());
         }
-        // self.0.position.x().rem_euclid(rhs)
+        // self.obj.position.x().rem_euclid(rhs)
 
         /* Apply drag */
-        self.0.speed = self.0.speed * 0.9;
+        self.obj.speed = self.obj.speed * 0.9;
     }
 }
 
@@ -107,7 +114,14 @@ impl Bullet {
     }
 
     pub fn update(&mut self, delta_time: f32) {
-        // let frame_velocity = self.0.velocity.scale(delta_time / 1000.);
-        // self.0.position += frame_velocity;
+        self.0.rotation = get_matrix_rotation(self.0.angle);
+
+        // Update direction matrix
+        let dir3 = self.0.rotation.mul_vec3(bevy_math::Vec3::new(0., 1., 0.));
+        self.0.direction = get_vec2_from_vec3(&dir3);
+
+        // Update translation matrix
+        let velocity = self.0.direction * self.0.speed * delta_time;
+        self.0.position += velocity;
     }
 }

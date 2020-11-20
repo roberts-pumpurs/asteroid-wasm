@@ -86,19 +86,18 @@ export function Game({ wasm }: Props): ReactElement {
   );
   const keyDown = useCallback(
     (e: React.KeyboardEvent<HTMLCanvasElement>) => {
-
       if (rectEl !== undefined) {
-          if (e.key === 'a') {
+        if (e.key === 'a') {
             client?.keyboard_a(true);
-          } else if (e.key === 'd') {
+        } else if (e.key === 'd') {
             client?.keyboard_d(true);
-          } else if (e.key === 'w') {
+        } else if (e.key === 'w') {
             client?.keyboard_w(true);
-          } else if (e.key === 's') {
+        } else if (e.key === 's') {
             client?.keyboard_s(true);
-          } else if (e.key === 'Space') {
+        } else if (e.key === ' ') {
             client?.keyboard_space(true);
-          }
+        }
       }
     },
     [client, rectEl],
@@ -114,7 +113,7 @@ export function Game({ wasm }: Props): ReactElement {
           client?.keyboard_w(false);
         } else if (e.key === 's') {
           client?.keyboard_s(false);
-        } else if (e.key === 'Space') {
+        } else if (e.key === ' ') {
           client?.keyboard_space(false);
         }
       }
