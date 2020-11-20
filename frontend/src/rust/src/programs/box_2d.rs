@@ -225,7 +225,7 @@ impl RenderObjectTrait for Box2D {
     fn set_input(&mut self, input: UserInput) {
         self.input = input;
     }
-    fn update(&mut self, _: f32, _: &GL) {
+    fn update(&mut self, _: f32, _: &GL, _: &CanvasData) {
         // todo!()
     }
 }

@@ -1,12 +1,12 @@
 pub mod shaders;
 pub mod ship;
+pub mod transform;
 use crate::canvas::CanvasData;
 use crate::input::UserInput;
-use crate::transform::Transform;
+use crate::transform::Transform as UserTransform;
 use crate::utils::console_log;
 use crate::RenderObjectTrait;
 use core::f32::consts::PI;
-use nalgebra_glm as glm;
 use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
@@ -15,32 +15,38 @@ use self::ship::{Bullet, SpaceShip};
 
 use super::box_2d::UniformLocations;
 
-const Z_OFFSET: f32 = -8.;
+use nalgebra_glm as glm;
+const Z_OFFSET: f32 = -6.;
 
 pub struct GameObject {
-    pub velocity: glm::TVec3<f32>,
-    pub position: glm::TVec3<f32>,
-    pub model_view_matrix: glm::TMat4<f32>,
-    pub rotation: f32,
+    pub angle: f32,
+    pub speed: f32,
+    pub position: bevy_math::Vec2,
+    pub direction: bevy_math::Vec2,
+    pub scale: bevy_math::Vec3,
+    pub rotation: bevy_math::Mat3,
+    pub translation: bevy_math::Mat3,
+    pub transformation: transform::Transform,
+
     pub buffers: Drawable,
 }
 
 impl GameObject {
     pub fn new(buffers: Drawable, offset_z: f32) -> Self {
-
         let mut s = Self {
-            position: glm::vec3(0., 0., 0.),
-            velocity: glm::vec3(0., 0., 0.),
-            model_view_matrix: glm::mat4(
-                0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-            ),
-            rotation: 0.,
+            angle: 0.,
+            speed: 0.,
+            position: bevy_math::Vec2::new(0., 0.),
+            direction: bevy_math::Vec2::new(0., 1.),
+            scale: bevy_math::Vec3::new(1., 1., 1.),
+            rotation: bevy_math::Mat3::identity(),
+            translation: bevy_math::Mat3::identity(),
+            transformation: transform::Transform::identity(),
             buffers,
         };
-        s.model_view_matrix.fill_with_identity();
-        s.model_view_matrix =
-            glm::translate(&s.model_view_matrix, &glm::vec3(0., 0., offset_z));
+        // s.translation .translate(bevy_math::vec3(0., 0., -6.));
         s
+        // TODO Perform Translation by Z axis
     }
 }
 
@@ -62,25 +68,30 @@ impl Drawable {
             buffer_vertices,
         }
     }
-
 }
 
-pub fn get_matrix_rotation(theta: f32) -> glm::Mat3 {
+pub fn get_matrix_rotation(theta: f32) -> bevy_math::Mat3 {
     let theta_rad = theta * PI / 180.;
     let theta_cos = theta_rad.cos();
     let theta_sin = theta_rad.sin();
-    glm::mat3(
-        theta_cos, -theta_sin, 0., theta_sin, theta_cos, 0., 0., 0., 1.,
+    bevy_math::Mat3::from_cols(
+        bevy_math::Vec3::new(theta_cos, -theta_sin, 0.),
+        bevy_math::Vec3::new(theta_sin, theta_cos, 0.),
+        bevy_math::Vec3::new(0., 0., 1.),
     )
 }
 
+pub fn get_vec2_from_vec3(dir3: &bevy_math::Vec3) -> bevy_math::Vec2 {
+    dir3.truncate()
+}
 impl GameObject {
     pub fn draw(
         &mut self,
         gl: &GL,
         attribute_locations: &AttributeLocationsLocal,
         uniform_locations: &UniformLocations,
-        projection_matrix: glm::TMat4<f32>,
+        projection_matrix: bevy_math::Mat4,
+        canvas: &CanvasData,
     ) {
         {
             // Set vertices
@@ -100,46 +111,35 @@ impl GameObject {
             );
         }
 
-        // set to new position
-        let mut empty_matrix = glm::mat4x4(
-            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-        );
-        empty_matrix.fill_with_identity();
+        //  --------- NEW --------- //
+        let theta_rad = self.angle * PI / 180.;
+        let rot = bevy_math::Quat::from_axis_angle(bevy_math::Vec3::new(0., 0., -1.), theta_rad);
 
-        /* Perform rotation */
-        let rot = get_matrix_rotation(self.rotation);
-        self.model_view_matrix = self.model_view_matrix * glm::mat3_to_mat4(&rot);
+        // Set factual values
+        self.transformation.set_translation(bevy_math::Vec3::new(
+            self.position.x(),
+            self.position.y(),
+            -10.,
+        ));
+        // .set_translation(bevy_math::Vec3::new(self.position.x(), self.position.y(), -1.));
+        self.transformation.set_rotation(rot);
+        self.transformation.set_non_uniform_scale(self.scale);
 
-        /* Perform positional movement */
-        let translation_vector = self.position;
-        self.model_view_matrix = glm::translate(&self.model_view_matrix, &translation_vector);
-
-        /* Apply screen wrapping */
-        let x_coord = self.model_view_matrix.get(12).unwrap();
-        let y_coord = self.model_view_matrix.get(13).unwrap();
-
-        // console_log(&format!(
-        //     "x_coord {:#?} y_coord {:#?}\n",
-        //     &x_coord, &y_coord,
-        // ));
-        let mut new_mvm = self.model_view_matrix.clone_owned();
-        if x_coord.abs() > 4. {
-            new_mvm[12] = -x_coord;
-        }
-        if y_coord.abs() > 2.6 {
-            new_mvm[13] = -y_coord;
-        }
-        self.model_view_matrix = new_mvm;
+        console_log(&format!(
+            "self.position {:?}|\n canvas x {:?} y {:?} ",
+            &self.position, canvas.width, canvas.height
+        ));
 
         gl.uniform_matrix4fv_with_f32_array(
             Some(&uniform_locations.model_view_matrix),
             false,
-            self.model_view_matrix.as_slice(),
+            // self.model_view_matrix.as_slice(),
+            &self.transformation.value().to_cols_array(),
         );
         gl.uniform_matrix4fv_with_f32_array(
             Some(&uniform_locations.projection_matrix),
             false,
-            projection_matrix.as_slice(),
+            &projection_matrix.to_cols_array(),
         );
 
         let offset = 0;
@@ -152,7 +152,7 @@ pub struct AsteroidCanvas {
     pub ship: SpaceShip,
     pub bullets: Vec<Bullet>,
     pub input: UserInput,
-    pub transform: Transform,
+    pub transform: UserTransform,
     // GL
     program: WebGlProgram,
     attribute_locations: AttributeLocationsLocal,
@@ -160,13 +160,13 @@ pub struct AsteroidCanvas {
 }
 
 impl RenderObjectTrait for AsteroidCanvas {
-    fn new(gl: &GL, program: WebGlProgram, transform: Transform) -> Self
+    fn new(gl: &GL, program: WebGlProgram, transform: UserTransform) -> Self
     where
         Self: Sized,
     {
         // Store metadata
         let input = UserInput::new();
-        let mut ship = SpaceShip::new(gl, Z_OFFSET);
+        let ship = SpaceShip::new(gl, Z_OFFSET);
 
         let attribute_locations = AttributeLocationsLocal {
             vertex_position: gl.get_attrib_location(&program, "aVertexPosition"),
@@ -190,10 +190,10 @@ impl RenderObjectTrait for AsteroidCanvas {
     fn input(&mut self) -> &mut UserInput {
         &mut self.input
     }
-    fn transform(&self) -> &Transform {
+    fn transform(&self) -> &UserTransform {
         &self.transform
     }
-    fn set_transform(&mut self, transform: Transform) {
+    fn set_transform(&mut self, transform: UserTransform) {
         self.transform = transform;
     }
     fn set_input(&mut self, input: UserInput) {
@@ -208,14 +208,18 @@ impl RenderObjectTrait for AsteroidCanvas {
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
 
         let z_near: f32 = 0.1;
+        // let z_near: f32 = 0.1;
         let z_far: f32 = 100.0;
 
-        let projection_matrix =
-            glm::perspective(canvas.get_aspect(), canvas.get_fov(), z_near, z_far);
-
-        /* Apply drag */
-        self.ship.0.velocity = self.ship.0.velocity.scale(0.0005);
-        self.ship.0.rotation = self.ship.0.rotation * 0.95;
+        /*  -------- Construct projection matrix -------- */
+        let f = 1. / (canvas.get_fov() / 2.).tan();
+        let range_inv = 1. / (z_near - z_far);
+        let projection_matrix = bevy_math::mat4(
+            bevy_math::vec4(f / canvas.get_aspect(), 0., 0., 0.),
+            bevy_math::vec4(0., f, 0., 0.),
+            bevy_math::vec4(0., 0., (z_near + z_far) * range_inv, -1.),
+            bevy_math::vec4(0., 0., z_near * z_far * range_inv * 2., 0.),
+        );
 
         /* Draw elements */
         self.ship.0.draw(
@@ -223,36 +227,48 @@ impl RenderObjectTrait for AsteroidCanvas {
             &self.attribute_locations,
             &self.uniform_locations,
             projection_matrix,
+            &canvas,
         );
 
-        console_log(&format!("Bullets {:?}", &self.bullets.len()));
+        // console_log(&format!("Bullets {:?}", &self.bullets.len()));
         for bullet in self.bullets.iter_mut() {
             bullet.0.draw(
                 gl,
                 &self.attribute_locations,
                 &self.uniform_locations,
                 projection_matrix,
+                &canvas,
             )
         }
     }
 
-    fn update(&mut self, delta_time: f32, gl: &GL) {
+    fn update(&mut self, delta_time: f32, gl: &GL, canvas: &CanvasData) {
         if self.input.keyboard_a {
-            self.ship.0.rotation += 0.01 * delta_time;
+            self.ship.0.angle += -5.;
         }
         if self.input.keyboard_d {
-            self.ship.0.rotation += -0.01 * delta_time;
+            self.ship.0.angle += 5.;
         }
         if self.input.keyboard_w {
-            self.ship.0.velocity += glm::vec3(0.00, 0.01, 0.0);
+            self.ship.0.speed += 0.0005;
         }
         if self.input.keyboard_s {
-            self.ship.0.velocity -= glm::vec3(0.00, 0.01, 0.0);
+            self.ship.0.speed -= 0.0005;
         }
         if self.input.spacebar {
             self.bullets.push(Bullet::new(gl, Z_OFFSET));
         }
-        self.ship.update(delta_time);
+        self.ship.update(
+            delta_time,
+            canvas.width / canvas.height,
+            canvas.height / canvas.width,
+        );
+
+        console_log(&format!(
+            "aspect X {} aspect Y {}",
+            canvas.width / canvas.height,
+            canvas.height / canvas.width,
+        ));
         // for bullet in self.bullets.iter_mut() {
         //     bullet.update(delta_time);
         // }

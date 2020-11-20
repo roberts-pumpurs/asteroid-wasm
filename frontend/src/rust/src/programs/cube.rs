@@ -1,5 +1,6 @@
 pub mod plane;
 pub mod point;
+use crate::CanvasData;
 use crate::input::UserInput;
 use crate::programs::box_2d::AttributeLocations;
 use crate::programs::box_2d::UniformLocations;
@@ -317,7 +318,7 @@ impl RenderObjectTrait for Cube {
             self.last_rotation = now;
         }
     }
-    fn update(&mut self, _: f32, _: &GL) {
+    fn update(&mut self, _: f32, _: &GL, _: &CanvasData) {
         // todo!()
     }
 }

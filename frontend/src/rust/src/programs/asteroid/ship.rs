@@ -1,9 +1,12 @@
+use crate::programs::asteroid::get_vec2_from_vec3;
 use crate::programs::asteroid::WebGlBuffer;
 use crate::utils::console_log;
 use nalgebra_glm as glm;
 
 use crate::programs::asteroid::{Drawable, GameObject};
 use web_sys::WebGlRenderingContext as GL;
+
+use super::get_matrix_rotation;
 
 pub struct SpaceShip(pub GameObject);
 
@@ -45,9 +48,30 @@ impl SpaceShip {
         (3, 8, position_buffer)
     }
 
-    pub fn update(&mut self, delta_time: f32) {
-        let frame_velocity = self.0.velocity.scale(delta_time / 1000.);
-        self.0.position += frame_velocity;
+    pub fn update(&mut self, delta_time: f32, aspect_x: f32, aspect_y: f32) {
+        // Update matrix values
+        // Update rotation matrix
+        self.0.rotation = get_matrix_rotation(self.0.angle);
+
+        // Update direction matrix
+        let dir3 = self.0.rotation.mul_vec3(bevy_math::Vec3::new(0., 1., 0.));
+        self.0.direction = get_vec2_from_vec3(&dir3);
+
+        // Update translation matrix
+        let velocity = self.0.direction * self.0.speed * delta_time;
+        self.0.position += velocity;
+
+        /* Wrap player */
+        if (self.0.position.y() / 11.).abs() + aspect_y > 1. {
+            self.0.position.set_y(-self.0.position.y());
+        }
+        if (self.0.position.x() / 11.).abs() * aspect_x > 1. {
+            self.0.position.set_x(-self.0.position.x());
+        }
+        // self.0.position.x().rem_euclid(rhs)
+
+        /* Apply drag */
+        self.0.speed = self.0.speed * 0.9;
     }
 }
 
@@ -66,10 +90,7 @@ impl Bullet {
         gl.bind_buffer(GL::ARRAY_BUFFER, Some(&position_buffer));
 
         // Construct spaceship
-        let vertices: Vec<(f32, f32, f32)> = vec![
-            (0., 0.5, 0.),
-            (0., 0., 0.),
-        ];
+        let vertices: Vec<(f32, f32, f32)> = vec![(0., 0.5, 0.), (0., 0., 0.)];
 
         let mut result_array: Vec<f32> = Vec::new();
         for elem in vertices.iter() {
@@ -86,7 +107,7 @@ impl Bullet {
     }
 
     pub fn update(&mut self, delta_time: f32) {
-        let frame_velocity = self.0.velocity.scale(delta_time / 1000.);
-        self.0.position += frame_velocity;
+        // let frame_velocity = self.0.velocity.scale(delta_time / 1000.);
+        // self.0.position += frame_velocity;
     }
 }

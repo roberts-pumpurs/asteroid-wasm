@@ -215,7 +215,7 @@ impl GlClient {
     pub fn update(&mut self, delta_time: f32) {
         match &mut self.object {
             Some(obj) => {
-                obj.update(delta_time, &self.gl);
+                obj.update(delta_time, &self.gl, &self.canvas);
             }
             None => {
                 console_log("doing Nothing");
