@@ -29,7 +29,6 @@ pub struct GameObject {
     pub direction: bevy_math::Vec2,
     pub scale: bevy_math::Vec3,
     pub rotation: bevy_math::Mat3,
-    pub translation: bevy_math::Mat3,
     pub transformation: transform::Transform,
 
     pub buffers: Drawable,
@@ -45,7 +44,6 @@ impl GameObject {
             direction: bevy_math::Vec2::new(0., 1.),
             scale: bevy_math::Vec3::new(1., 1., 1.),
             rotation: bevy_math::Mat3::identity(),
-            translation: bevy_math::Mat3::identity(),
             transformation: transform::Transform::identity(),
             buffers,
         };
@@ -334,16 +332,6 @@ impl RenderObjectTrait for AsteroidCanvas {
             self.asteroids.insert(self.max_asteroid_id as usize, asteroid);
         }
 
-        /* Position updates */
-        self.ship.update(delta_time);
-
-        for bullet in self.bullets.iter_mut() {
-            bullet.update(delta_time);
-        }
-        for asteroid in self.asteroids.iter_mut() {
-            asteroid.1.update(delta_time);
-        }
-
         /* Despawn objects */
         // Bullets go out of range
         self.bullets.retain(|el| {
@@ -378,10 +366,12 @@ impl RenderObjectTrait for AsteroidCanvas {
             if a.obj.radius > 0.3 {
                 let pieces = rng.gen_range(2, 4);
                 for _ in 0..pieces {
-                    let scale = a.obj.radius / pieces as f32;
-                    let mut asteroid = Asteroid::new(gl, Z_OFFSET, scale);
+                    let radius = a.obj.radius / pieces as f32;
+                    let mut asteroid = Asteroid::new(gl, Z_OFFSET, radius);
+                    // asteroid.obj.transformation = a.obj.transformation;
                     asteroid.obj.position = a.obj.position.clone();
-                    asteroid.obj.radius = scale;
+                    // asteroid.obj.position *= radius;
+                    asteroid.obj.radius = radius;
                     asteroid.obj.speed = rng.gen_range(0.001, 0.005);
                     asteroid.obj.direction = bevy_math::Vec2::new(rng.gen_range(1., 100.), rng.gen_range(1., 100.));
                     asteroid.obj.angle = rng.gen_range(0, 360) as f32;
@@ -392,6 +382,7 @@ impl RenderObjectTrait for AsteroidCanvas {
                 }
             }
         });
+        self.max_asteroid_id += local_max as i32;
         // Clean up asteroids
         let mut remove_keys = vec![];
         let destroyable_keys: Vec<usize> = removable_asteroids.iter().map(|e| e.0.clone()).collect();
@@ -399,15 +390,27 @@ impl RenderObjectTrait for AsteroidCanvas {
 
         self.asteroids.iter().for_each(|(key, el)| {
             // Asteroids go out of range
-            if ((el.obj.position.y() / 11.).abs() + 0.6 > 2.3)
-                || ((el.obj.position.x() / 11.).abs() * 1.6 > 2.3) || destroyable_keys.contains(&key) {
+            if (el.obj.position.y().abs() > 6.)
+                || (el.obj.position.x().abs() > 9.) || destroyable_keys.contains(&key) {
                     remove_keys.push(key.clone());
                 }
         });
 
         for k in &remove_keys {
-            console_log(&format!("removing {:?}", &k));
+            console_log(&format!("k {:?} {:?}", &k, self.asteroids.get(k).unwrap().obj.position));
             self.asteroids.remove(k);
         }
+
+
+        /* Position updates */
+        self.ship.update(delta_time);
+
+        for bullet in self.bullets.iter_mut() {
+            bullet.update(delta_time);
+        }
+        for asteroid in self.asteroids.iter_mut() {
+            asteroid.1.update(delta_time);
+        }
+
     }
 }
