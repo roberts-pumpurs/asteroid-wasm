@@ -180,8 +180,6 @@ impl GlClient {
     pub fn keyboard_a(&mut self, value: bool) {
         match &mut self.object {
             Some(obj) => {
-
-                console_log(&"SOMETHING A");
                 obj.input().update_keyboard_a( value);
             }
             None => {

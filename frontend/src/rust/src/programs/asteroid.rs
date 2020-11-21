@@ -19,7 +19,9 @@ use super::box_2d::UniformLocations;
 
 const Z_OFFSET: f32 = -10.;
 
+#[derive(Debug, Clone)]
 pub struct GameObject {
+    pub radius: f32,
     pub angle: f32,
     pub speed: f32,
     pub position: bevy_math::Vec2,
@@ -35,6 +37,7 @@ pub struct GameObject {
 impl GameObject {
     pub fn new(buffers: Drawable, offset_z: f32) -> Self {
         let mut s = Self {
+            radius: 0.,
             angle: 0.,
             speed: 0.,
             position: bevy_math::Vec2::new(0., 0.),
@@ -60,15 +63,27 @@ impl GameObject {
         self.position += velocity;
     }
 
-    // pub fn does_overlap(obj1: &GameObject, obj2: &GameObject) -> bool {
+    pub fn does_overlap(obj1: &GameObject, obj2: &GameObject) -> bool {
+        let overlap = GameObject::circles_overlap(obj1.position, obj1.radius, obj2.position, obj2.radius,);
+        console_log(&format!(
+            "OVERLAP {:?}",
+            &overlap
+        ));
+        overlap
+    }
 
-    // }
+    /* Helpers */
+    fn circles_overlap(c1: bevy_math::Vec2, r1: f32, c2: bevy_math::Vec2, r2: f32) -> bool {
+        let delta: bevy_math::Vec2 = c2 - c1;
+        delta.length_squared() <= (r1 + r2).powi(2)
+    }
 }
 
 pub struct AttributeLocationsLocal {
     pub vertex_position: i32,
 }
 
+#[derive(Debug, Clone)]
 pub struct Drawable {
     pub item_size: i32,
     pub num_items: i32,
@@ -293,7 +308,8 @@ impl RenderObjectTrait for AsteroidCanvas {
         /* Generate asteroids */
 
         let mut rng = rand::thread_rng();
-        if self.asteroids.len() < 15 {
+        if self.asteroids.len() < 10 {
+            // if self.asteroids.len() < 15 {
             let mut asteroid = Asteroid::new(gl, Z_OFFSET, 0.9);
 
             // TODO Generate from the side of the screen
@@ -314,16 +330,14 @@ impl RenderObjectTrait for AsteroidCanvas {
             asteroid.obj.position = bevy_math::Vec2::new(rand_x, rand_y);
             asteroid.obj.speed = rng.gen_range(0.0005, 0.001);
             asteroid.obj.scale = bevy_math::Vec3::new(
-                rng.gen_range(0.3, 1.5),
-                rng.gen_range(0.3, 1.5),
-                rng.gen_range(0.3, 1.5),
+                0.9, 0.9, 0.9
             );
             asteroid.obj.direction =
                 bevy_math::Vec2::new(rng.gen_range(1., 100.), rng.gen_range(1., 100.));
             asteroid.obj.angle = rng.gen_range(0, 360) as f32;
 
             self.asteroids.push(asteroid);
-            console_log("Pushing asteroid");
+            // console_log("Pushing asteroid");
         }
 
         /* Position updates */
@@ -336,16 +350,70 @@ impl RenderObjectTrait for AsteroidCanvas {
             asteroid.update(delta_time);
         }
 
+        GameObject::does_overlap(&self.ship.obj, &self.asteroids.get(0).unwrap().obj);
         /* Despawn objects */
+        // Bullets go out of range
         self.bullets.retain(|el| {
             !((el.0.position.y() / 11.).abs() + 0.6 > 1.)
                 || ((el.0.position.x() / 11.).abs() * 1.6 > 1.)
         });
+        // Bullets interact with asteroids
+        let mut removable_bullets = vec![];
+        let mut removable_asteroids = vec![];
+
+        for bullet in &self.bullets {
+            let mut drop_bullet = false;
+            for asteroid in &self.asteroids {
+                drop_bullet = GameObject::does_overlap(&bullet.0, &asteroid.obj);
+                if drop_bullet {
+                    removable_asteroids.push(asteroid);
+                }
+            }
+            if drop_bullet {
+                removable_bullets.push(bullet as *const Bullet);
+            }
+        }
+        self.bullets.retain(|b| {
+            !removable_bullets.contains(&(b as *const Bullet))
+        });
+
+        // Split asteroids
+        let mut children_asteroids = vec![];
+        // children_asteroids.iter().for_each(f)
+        removable_asteroids.iter().for_each(|a| {
+            if a.obj.radius > 0.3 {
+                let pieces = rng.gen_range(2, 10);
+                for _ in 0..pieces {
+                    let mut asteroid = Asteroid::new(gl, Z_OFFSET, 0.9);
+                    asteroid.obj.position = a.obj.position.clone();
+                    let scale = a.obj.radius / pieces as f32;
+                    asteroid.obj.radius = scale;
+                    asteroid.obj.scale = bevy_math::Vec3::new(
+                        scale, scale, scale
+                    );
+                    asteroid.obj.speed = rng.gen_range(0.0005, 0.001);
+                    asteroid.obj.direction = bevy_math::Vec2::new(rng.gen_range(1., 100.), rng.gen_range(1., 100.));
+                    asteroid.obj.angle = rng.gen_range(0, 360) as f32;
+                    children_asteroids.push(asteroid);
+                }
+            }
+        });
+        self.asteroids.extend(children_asteroids);
+
+        // Asteroids go out of range
         self.asteroids.retain(|el| {
             let drop = ((el.obj.position.y() / 11.).abs() + 0.6 > 1.3)
                 || ((el.obj.position.x() / 11.).abs() * 1.6 > 1.3);
-            if drop {console_log("Despawning asteroid"); }
             !drop
         });
+
+        // Asteroids are destroyed by bullets
+        // self.asteroids.retain(|a| {
+        //     removable_asteroids.contains(&a)
+        // });
+        // removable_asteroids.iter().for_each(|a| {
+
+        //     // self.asteroids.remove_item(a);
+        // });
     }
 }

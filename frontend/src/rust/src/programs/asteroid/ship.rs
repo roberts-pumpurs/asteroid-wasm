@@ -113,6 +113,13 @@ pub struct Asteroid {
     pub obj: GameObject,
 }
 
+impl PartialEq for Asteroid {
+    fn eq(&self, other: &Self) -> bool {
+        // Comparing memory addresses
+        self == other
+    }
+}
+
 
 // RADIUSES = [4, 2.8, 1.5];
 impl Asteroid {
@@ -120,7 +127,8 @@ impl Asteroid {
     pub fn new(gl: &GL, offset_z: f32, radius: f32) -> Self {
         let gl_buffer = Self::init_buffers(gl, radius);
         let buffers = Drawable::new(gl_buffer.0, gl_buffer.1, gl_buffer.2);
-        let g_object = GameObject::new(buffers, offset_z);
+        let mut g_object = GameObject::new(buffers, offset_z);
+        g_object.radius = radius;
         Self { obj: g_object }
     }
 
@@ -133,10 +141,11 @@ impl Asteroid {
         let mut points: Vec<(f32, f32, f32)> = vec![];
         for i in 0..12 {
             let rotation = (i as f32 / 12.) as f32 * 2. * PI;
-            let x = rotation.cos() + rng.gen_range(0.1, 0.6);
-            let y = rotation.sin() + rng.gen_range(0.1, 0.6);;
-            let vert_dist = radius + rng.gen_range(0.3 * radius, 0.6 * radius);
-            points.push((x * vert_dist, y * vert_dist, 0.));
+            let x = rotation.cos();// + rng.gen_range(0.1, 0.6);
+            let y = rotation.sin();// + rng.gen_range(0.1, 0.6);
+            // let vert_dist = radius + rng.gen_range(0.3 * radius, 0.6 * radius);
+            // points.push((x * vert_dist, y * vert_dist, 0.));
+            points.push((x, y, 0.));
         }
 
         let mut result_array: Vec<f32> = Vec::new();
