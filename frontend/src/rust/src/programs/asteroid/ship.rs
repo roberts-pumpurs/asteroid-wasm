@@ -141,11 +141,11 @@ impl Asteroid {
         let mut points: Vec<(f32, f32, f32)> = vec![];
         for i in 0..12 {
             let rotation = (i as f32 / 12.) as f32 * 2. * PI;
-            let x = rotation.cos();// + rng.gen_range(0.1, 0.6);
-            let y = rotation.sin();// + rng.gen_range(0.1, 0.6);
-            // let vert_dist = radius + rng.gen_range(0.3 * radius, 0.6 * radius);
+            let x = rotation.cos() + rng.gen_range(-0.5, 0.5);
+            let y = rotation.sin() + rng.gen_range(-0.5, 0.5);
+            let vert_dist = radius; // + rng.gen_range(0.3 * radius, 0.6 * radius);
             // points.push((x * vert_dist, y * vert_dist, 0.));
-            points.push((x, y, 0.));
+            points.push((x * vert_dist, y * vert_dist, 0.));
         }
 
         let mut result_array: Vec<f32> = Vec::new();
