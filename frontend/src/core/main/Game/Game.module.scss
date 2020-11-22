@@ -1,0 +1,21 @@
+@use '../../../utils/base';
+
+.rules {
+    margin-top: 6rem;
+    margin-left: -13rem;
+    position: absolute;
+
+    h3 {
+        font-size: 3.5rem;
+    }
+    div {
+        font-size: 2rem;
+        // text-align: justify;
+        margin-left: 2rem;
+    }
+
+    button {
+        width: 85%;
+    }
+
+}

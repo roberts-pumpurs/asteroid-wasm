@@ -4,6 +4,7 @@ import React, {
 import { CanvasData, GlClient } from 'wasm-app';
 import style from 'core/main/About/About.module.scss';
 import { Status } from './Status';
+import { GameOverlay } from './GameOverlay';
 
 interface Props {
   wasm: typeof import('wasm-app');
@@ -24,7 +25,7 @@ export function Game({ wasm }: Props): ReactElement {
   const [rectEl, setRectEl] = useState<DOMRect>();
 
   /* Game state */
-  const [isActive, setIsActive] = useState(true);
+  const [isActive, setIsActive] = useState(false);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [seconds, setSeconds] = useState(0);
@@ -109,15 +110,15 @@ export function Game({ wasm }: Props): ReactElement {
     (e: React.KeyboardEvent<HTMLCanvasElement>) => {
       if (rectEl !== undefined) {
         if (e.key === 'a') {
-            client?.keyboard_a(true);
+          client?.keyboard_a(true);
         } else if (e.key === 'd') {
-            client?.keyboard_d(true);
+          client?.keyboard_d(true);
         } else if (e.key === 'w') {
-            client?.keyboard_w(true);
+          client?.keyboard_w(true);
         } else if (e.key === 's') {
-            client?.keyboard_s(true);
+          client?.keyboard_s(true);
         } else if (e.key === ' ') {
-            client?.keyboard_space(true);
+          client?.keyboard_space(true);
         }
       }
     },
@@ -144,33 +145,32 @@ export function Game({ wasm }: Props): ReactElement {
 
   /* Set the factual renderable object */
   useEffect(() => {
-    client?.set_renderable(wasm.RenderableOption.Asteroid, new wasm.Transform(0, 0, 0));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // client?.set_score_function((v: any) => {
-    //   return console.log(v);
-    // });
-    client?.set_score_function(setScore);
-  }, [client, wasm.RenderableOption.Asteroid, wasm.Transform]);
+    if (isActive) {
+      client?.set_renderable(wasm.RenderableOption.Asteroid, new wasm.Transform(0, 0, 0));
+      client?.set_score_function(setScore);
+    }
+  }, [client, isActive, wasm.RenderableOption.Asteroid, wasm.Transform]);
 
   console.log(score);
 
   useEffect(() => {
-    // let interval = null;
-    const interval = setInterval(() => {
-      setSeconds((s) => s + 1);
-    }, 1000);
-    // if (isActive) {
-    // } else if (!isActive && seconds !== 0) {
-    //   clearInterval(interval);
-    // }
-    return () => clearInterval(interval);
-  }, [isActive, seconds]);
+    let interval: NodeJS.Timeout | null = null;
+    if (isActive) {
+      interval = setInterval(() => {
+        setSeconds((s) => s + 1);
+      }, 1000);
+    } else if (!isActive && interval !== null) {
+      clearInterval(interval);
+    }
+  }, [isActive]);
+  console.log(seconds);
 
   return (
     <div className={style['game-wrapper']}>
       <h1>1979 ATARI Asteroids Clone</h1>
       <div className={style['canvas-and-options']}>
         {/* Create the canvas that will be used for rendering stuff */}
+        {!isActive && <GameOverlay setActive={setIsActive} />}
         <canvas
           tabIndex={0}
           id={canvasId}
