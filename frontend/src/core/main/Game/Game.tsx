@@ -14,14 +14,22 @@ const UPDATE_THROTTLE = 1000 / 288; // 144 fps
 const USER_INPUT_THROTTLE = 1000 / 500; // 144 fps
 
 export function Game({ wasm }: Props): ReactElement {
+  /* WASM / WebGL */
   const [canvas, setCanvas] = useState<CanvasData>();
   const [client, setClient] = useState<GlClient>();
-  const [width, setWidth] = useState(1000);
-  const [degrees, setDegrees] = useState(45);
-  const [height, setHeight] = useState(600);
+  const [width] = useState(1000);
+  const [degrees] = useState(45);
+  const [height] = useState(600);
   const canvasId = 'canvasRust';
   const [rectEl, setRectEl] = useState<DOMRect>();
 
+  /* Game state */
+  const [isActive, setIsActive] = useState(true);
+  const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(3);
+  const [seconds, setSeconds] = useState(0);
+
+  /* Game initialisation */
   useEffect(() => {
     setCanvas(new wasm.CanvasData(width, height, degrees, canvasId));
   }, [width, height, canvasId, wasm.CanvasData, degrees]);
@@ -138,10 +146,25 @@ export function Game({ wasm }: Props): ReactElement {
   useEffect(() => {
     client?.set_renderable(wasm.RenderableOption.Asteroid, new wasm.Transform(0, 0, 0));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    client?.set_score_function((v: any) => {
-      return console.log(v);
-    });
+    // client?.set_score_function((v: any) => {
+    //   return console.log(v);
+    // });
+    client?.set_score_function(setScore);
   }, [client, wasm.RenderableOption.Asteroid, wasm.Transform]);
+
+  console.log(score);
+
+  useEffect(() => {
+    // let interval = null;
+    const interval = setInterval(() => {
+      setSeconds((s) => s + 1);
+    }, 1000);
+    // if (isActive) {
+    // } else if (!isActive && seconds !== 0) {
+    //   clearInterval(interval);
+    // }
+    return () => clearInterval(interval);
+  }, [isActive, seconds]);
 
   return (
     <div className={style['game-wrapper']}>
@@ -160,7 +183,7 @@ export function Game({ wasm }: Props): ReactElement {
           onKeyUp={keyUp}
         />
         {wasm && canvas && client && (
-          <Status client={client} wasm={wasm} />
+          <Status client={client} wasm={wasm} lives={lives} score={score} seconds={seconds} />
         )}
       </div>
     </div>
