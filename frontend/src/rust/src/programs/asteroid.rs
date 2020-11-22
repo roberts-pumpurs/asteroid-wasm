@@ -170,10 +170,10 @@ pub struct AsteroidCanvas {
     // Game itself
     pub ship: SpaceShip,
     pub bullets: Vec<Bullet>,
-    pub asteroids: HashMap<usize, Asteroid>,
+    pub asteroids: HashMap<u64, Asteroid>,
     pub input: UserInput,
     pub transform: UserTransform,
-    max_asteroid_id: i32,
+    max_asteroid_id: u64,
     // GL
     program: WebGlProgram,
     attribute_locations: AttributeLocationsLocal,
@@ -329,7 +329,8 @@ impl RenderObjectTrait for AsteroidCanvas {
                 bevy_math::Vec2::new(rng.gen_range(1., 100.), rng.gen_range(1., 100.));
             asteroid.obj.angle = rng.gen_range(0, 360) as f32;
             self.max_asteroid_id += 1;
-            self.asteroids.insert(self.max_asteroid_id as usize, asteroid);
+
+            self.asteroids.insert(self.max_asteroid_id, asteroid);
         }
 
         /* Despawn objects */
@@ -360,8 +361,10 @@ impl RenderObjectTrait for AsteroidCanvas {
         });
 
         // Split asteroids
+        let mut destroyable_keys = vec![];
         let mut children_asteroids = HashMap::new();
-        let mut local_max = self.max_asteroid_id.clone() as usize;
+        let mut local_max = self.max_asteroid_id.clone();
+        let mut iterations: u64 = 0;
         removable_asteroids.iter().for_each(|(key, a)| {
             if a.obj.radius > 0.3 {
                 let pieces = rng.gen_range(2, 4);
@@ -375,29 +378,26 @@ impl RenderObjectTrait for AsteroidCanvas {
                     asteroid.obj.speed = rng.gen_range(0.001, 0.005);
                     asteroid.obj.direction = bevy_math::Vec2::new(rng.gen_range(1., 100.), rng.gen_range(1., 100.));
                     asteroid.obj.angle = rng.gen_range(0, 360) as f32;
-                    local_max += 1;
 
-                    console_log(&format!("inserting {:?}", &local_max));
-                    children_asteroids.insert(local_max.clone(),asteroid);
+                    iterations += 1;
+                    let key = local_max + iterations;
+                    children_asteroids.insert(key,asteroid);
                 }
+                destroyable_keys.push(key.clone().clone());
             }
         });
-        self.max_asteroid_id += local_max as i32;
-        // Clean up asteroids
-        let mut remove_keys = vec![];
-        let destroyable_keys: Vec<usize> = removable_asteroids.iter().map(|e| e.0.clone()).collect();
+        self.max_asteroid_id += iterations;
         self.asteroids.extend(children_asteroids);
 
+        // Clean up asteroids
         self.asteroids.iter().for_each(|(key, el)| {
             // Asteroids go out of range
-            if (el.obj.position.y().abs() > 8.)
-                || (el.obj.position.x().abs() > 11.) || destroyable_keys.contains(&key) {
-                    remove_keys.push(key.clone());
-                }
+            if (el.obj.position.y().abs() > 8.) || (el.obj.position.x().abs() > 11.) {
+                destroyable_keys.push(key.clone());
+            }
         });
 
-        for k in &remove_keys {
-            console_log(&format!("k {:?} {:?}", &k, self.asteroids.get(k).unwrap().obj.position));
+        for k in &destroyable_keys {
             self.asteroids.remove(k);
         }
 
