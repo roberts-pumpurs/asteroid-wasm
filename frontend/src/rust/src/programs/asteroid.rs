@@ -9,7 +9,9 @@ use crate::utils::console_log;
 use crate::RenderObjectTrait;
 use core::f32::consts::PI;
 use std::collections::HashMap;
+use js_sys::Function;
 use rand::prelude::*;
+use wasm_bindgen::JsValue;
 use web_sys::WebGlBuffer;
 use web_sys::WebGlProgram;
 use web_sys::WebGlRenderingContext as GL;
@@ -173,6 +175,7 @@ pub struct AsteroidCanvas {
     pub asteroids: HashMap<u64, Asteroid>,
     pub input: UserInput,
     pub transform: UserTransform,
+    pub score: u64,
     max_asteroid_id: u64,
     // GL
     program: WebGlProgram,
@@ -201,6 +204,7 @@ impl RenderObjectTrait for AsteroidCanvas {
             bullets: vec![],
             asteroids: HashMap::new(),
             max_asteroid_id: 0,
+            score: 0,
             ship,
             input,
             transform,
@@ -273,7 +277,7 @@ impl RenderObjectTrait for AsteroidCanvas {
         }
     }
 
-    fn update(&mut self, delta_time: f32, gl: &GL, canvas: &CanvasData) {
+    fn update(&mut self, delta_time: f32, gl: &GL, canvas: &CanvasData, update_score: &Function) {
         /* Keyboard event capture */
         if self.input.keyboard_a {
             self.ship.obj.angle += -5.;
@@ -348,6 +352,10 @@ impl RenderObjectTrait for AsteroidCanvas {
             for asteroid in &self.asteroids {
                 drop_bullet = GameObject::does_overlap(&bullet.0, &asteroid.1.obj);
                 if drop_bullet {
+                    self.score += 1;
+                    let score = JsValue::from_f64(self.score as f64);
+                    // Crash explicitly if cannot update global score
+                    update_score.call1(&score, &score).unwrap();
                     removable_asteroids.push(asteroid);
                     break;
                 }

@@ -9,6 +9,7 @@ mod input;
 
 use crate::input::UserInput;
 use std::fmt::Debug;
+use js_sys::Function;
 use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
 
@@ -26,7 +27,7 @@ pub trait RenderObjectTrait {
     fn input(&mut self) -> &mut UserInput;
     fn set_input(&mut self, input: UserInput);
     fn draw_scene(&mut self, gl: &GL, canvas: &CanvasData);
-    fn update(&mut self, delta_time: f32, gl: &GL, canvas: &CanvasData);
+    fn update(&mut self, delta_time: f32, gl: &GL, canvas: &CanvasData, set_score: &Function);
 }
 
 #[wasm_bindgen]

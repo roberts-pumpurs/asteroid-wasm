@@ -11,8 +11,10 @@ use crate::{
     utils::{console_log, link_program},
     RenderObjectTrait,
 };
+use js_sys::Function;
 use wasm_bindgen::prelude::*;
 use web_sys::{HtmlCanvasElement, WebGlProgram, WebGlRenderingContext as GL};
+
 
 #[wasm_bindgen]
 pub struct GlClient {
@@ -21,6 +23,7 @@ pub struct GlClient {
     pub is_ready: bool,
     master_canvas: HtmlCanvasElement,
     canvas: CanvasData,
+    set_score: Option<Function>
 }
 
 #[wasm_bindgen]
@@ -34,6 +37,7 @@ impl GlClient {
             object: None,
             is_ready: false,
             master_canvas: canvas_el,
+            set_score: None,
         };
         client.set_renderable(opt, transform);
         client
@@ -49,7 +53,13 @@ impl GlClient {
             object: None,
             is_ready: false,
             master_canvas: canvas_el,
+            set_score: None,
         }
+    }
+
+    #[wasm_bindgen]
+    pub fn set_score_function(&mut self, callback: Function) {
+        self.set_score = Some(callback);
     }
 
     #[wasm_bindgen]
@@ -213,7 +223,12 @@ impl GlClient {
     pub fn update(&mut self, delta_time: f32) {
         match &mut self.object {
             Some(obj) => {
-                obj.update(delta_time, &self.gl, &self.canvas);
+                match &self.set_score {
+                    Some(f) => {
+                        obj.update(delta_time, &self.gl, &self.canvas, f);
+                    }
+                    None => {}
+                }
             }
             None => {
                 console_log("doing Nothing");

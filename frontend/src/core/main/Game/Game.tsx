@@ -137,6 +137,10 @@ export function Game({ wasm }: Props): ReactElement {
   /* Set the factual renderable object */
   useEffect(() => {
     client?.set_renderable(wasm.RenderableOption.Asteroid, new wasm.Transform(0, 0, 0));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    client?.set_score_function((v: any) => {
+      return console.log(v);
+    });
   }, [client, wasm.RenderableOption.Asteroid, wasm.Transform]);
 
   return (

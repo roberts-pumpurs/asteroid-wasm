@@ -2,7 +2,7 @@ use crate::input::UserInput;
 use crate::utils::console_log;
 use nalgebra_glm as glm;
 // use std::time::{SystemTime, UNIX_EPOCH};
-use js_sys::Date;
+use js_sys::{Date, Function};
 
 use super::{
     colors::SingleColor,
@@ -225,7 +225,7 @@ impl RenderObjectTrait for Box2D {
     fn set_input(&mut self, input: UserInput) {
         self.input = input;
     }
-    fn update(&mut self, _: f32, _: &GL, _: &CanvasData) {
+    fn update(&mut self, _: f32, _: &GL, _: &CanvasData, _: &Function) {
         // todo!()
     }
 }

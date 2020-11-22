@@ -8,7 +8,7 @@ use crate::programs::colors::SingleColor;
 use crate::programs::cube::plane::Plane2D;
 use crate::transform::Transform;
 use crate::{utils::console_log, RenderObjectTrait};
-use js_sys::Date;
+use js_sys::{Date, Function};
 use nalgebra_glm as glm;
 use plane::Plane3D;
 use point::Point3D;
@@ -318,7 +318,7 @@ impl RenderObjectTrait for Cube {
             self.last_rotation = now;
         }
     }
-    fn update(&mut self, _: f32, _: &GL, _: &CanvasData) {
+    fn update(&mut self, _: f32, _: &GL, _: &CanvasData, _: &Function) {
         // todo!()
     }
 }
