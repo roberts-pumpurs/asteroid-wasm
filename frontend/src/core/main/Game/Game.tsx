@@ -6,13 +6,21 @@ import style from 'core/main/About/About.module.scss';
 import { Status } from './Status';
 import { GameOverlay } from './GameOverlay';
 
-interface Props {
-  wasm: typeof import('wasm-app');
-}
-
+/* Constants */
 const FPS_THROTTLE = 1000 / 144; // 144 fps
 const UPDATE_THROTTLE = 1000 / 288; // 144 fps
 const USER_INPUT_THROTTLE = 1000 / 500; // 144 fps
+
+export enum GameState {
+  INITIALIZING,
+  RUNNING,
+  GAME_OVER,
+}
+
+/* Component */
+interface Props {
+  wasm: typeof import('wasm-app');
+}
 
 export function Game({ wasm }: Props): ReactElement {
   /* WASM / WebGL */
@@ -25,10 +33,11 @@ export function Game({ wasm }: Props): ReactElement {
   const [rectEl, setRectEl] = useState<DOMRect>();
 
   /* Game state */
-  const [isActive, setIsActive] = useState(false);
+  const [gameState, setGameState] = useState(GameState.INITIALIZING);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [seconds, setSeconds] = useState(0);
+  const [interval, setIntervalVariable] = useState<NodeJS.Timeout | null>(null);
 
   /* Game initialisation */
   useEffect(() => {
@@ -145,32 +154,45 @@ export function Game({ wasm }: Props): ReactElement {
 
   /* Set the factual renderable object */
   useEffect(() => {
-    if (isActive) {
+    if (gameState === GameState.RUNNING) {
       client?.set_renderable(wasm.RenderableOption.Asteroid, new wasm.Transform(0, 0, 0));
       client?.set_score_function(
         (scoreNew: number, livesNew: number) => {
           setScore(scoreNew); setLives(livesNew);
         });
     }
-  }, [client, isActive, wasm.RenderableOption.Asteroid, wasm.Transform]);
+  }, [client, gameState, wasm.RenderableOption.Asteroid, wasm.Transform]);
+
+  /* Handle game state changes */
+  useEffect(() => {
+    // let interval: NodeJS.Timeout | null = null;
+    if (gameState === GameState.RUNNING) {
+      setIntervalVariable(
+        setInterval(() => {
+          if (gameState === GameState.RUNNING) {
+            setSeconds((s) => s + 1);
+          }
+        }, 1000),
+      );
+    }
+  }, [gameState]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isActive) {
-      interval = setInterval(() => {
-        setSeconds((s) => s + 1);
-      }, 1000);
-    } else if (!isActive && interval !== null) {
-      clearInterval(interval);
+    if (lives <= 0) {
+      setGameState(GameState.GAME_OVER);
+      if (interval !== null) {
+        clearInterval(interval);
+      }
     }
-  }, [isActive]);
+  }, [interval, lives]);
 
   return (
     <div className={style['game-wrapper']}>
       <h1>1979 ATARI Asteroids Clone</h1>
       <div className={style['canvas-and-options']}>
         {/* Create the canvas that will be used for rendering stuff */}
-        {!isActive && <GameOverlay setActive={setIsActive} />}
+        {!(gameState === GameState.RUNNING)
+          && <GameOverlay setActive={() => setGameState(GameState.RUNNING)} currentState={gameState} />}
         <canvas
           tabIndex={0}
           id={canvasId}
