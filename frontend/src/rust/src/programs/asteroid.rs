@@ -383,8 +383,8 @@ impl RenderObjectTrait for AsteroidCanvas {
                     let key = local_max + iterations;
                     children_asteroids.insert(key,asteroid);
                 }
-                destroyable_keys.push(key.clone().clone());
             }
+            destroyable_keys.push(key.clone().clone());
         });
         self.max_asteroid_id += iterations;
         self.asteroids.extend(children_asteroids);
