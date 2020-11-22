@@ -390,8 +390,8 @@ impl RenderObjectTrait for AsteroidCanvas {
 
         self.asteroids.iter().for_each(|(key, el)| {
             // Asteroids go out of range
-            if (el.obj.position.y().abs() > 7.)
-                || (el.obj.position.x().abs() > 10.) || destroyable_keys.contains(&key) {
+            if (el.obj.position.y().abs() > 8.)
+                || (el.obj.position.x().abs() > 11.) || destroyable_keys.contains(&key) {
                     remove_keys.push(key.clone());
                 }
         });
