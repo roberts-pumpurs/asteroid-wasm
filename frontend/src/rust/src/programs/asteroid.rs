@@ -176,11 +176,22 @@ pub struct AsteroidCanvas {
     pub input: UserInput,
     pub transform: UserTransform,
     pub score: u64,
+    pub lives: u8,
     max_asteroid_id: u64,
     // GL
     program: WebGlProgram,
     attribute_locations: AttributeLocationsLocal,
     uniform_locations: UniformLocations,
+}
+
+impl AsteroidCanvas {
+
+    fn update_js_values(&self, update_js: &Function) {
+        let score = JsValue::from_f64(self.score as f64);
+        let lives = JsValue::from_f64(self.lives as f64);
+        // Crash explicitly if cannot update global score
+        update_js.call2(&score, &score, &lives).unwrap();
+    }
 }
 
 impl RenderObjectTrait for AsteroidCanvas {
@@ -201,6 +212,7 @@ impl RenderObjectTrait for AsteroidCanvas {
             model_view_matrix: gl.get_uniform_location(&program, "uMVMatrix").unwrap(),
         };
         Self {
+            lives: 3,
             bullets: vec![],
             asteroids: HashMap::new(),
             max_asteroid_id: 0,
@@ -277,7 +289,7 @@ impl RenderObjectTrait for AsteroidCanvas {
         }
     }
 
-    fn update(&mut self, delta_time: f32, gl: &GL, canvas: &CanvasData, update_score: &Function) {
+    fn update(&mut self, delta_time: f32, gl: &GL, canvas: &CanvasData, update_js: &Function) {
         /* Keyboard event capture */
         if self.input.keyboard_a {
             self.ship.obj.angle += -5.;
@@ -353,9 +365,7 @@ impl RenderObjectTrait for AsteroidCanvas {
                 drop_bullet = GameObject::does_overlap(&bullet.0, &asteroid.1.obj);
                 if drop_bullet {
                     self.score += 1;
-                    let score = JsValue::from_f64(self.score as f64);
-                    // Crash explicitly if cannot update global score
-                    update_score.call1(&score, &score).unwrap();
+                    self.update_js_values(&update_js);
                     removable_asteroids.push(asteroid);
                     break;
                 }
@@ -397,18 +407,29 @@ impl RenderObjectTrait for AsteroidCanvas {
         self.max_asteroid_id += iterations;
         self.asteroids.extend(children_asteroids);
 
+
+
         // Clean up asteroids
+        let mut mutatable_lives = self.lives;
         self.asteroids.iter().for_each(|(key, el)| {
             // Asteroids go out of range
             if (el.obj.position.y().abs() > 8.) || (el.obj.position.x().abs() > 11.) {
                 destroyable_keys.push(key.clone());
             }
+            // Check overlap with player
+            if GameObject::does_overlap(&self.ship.obj, &el.obj) {
+                destroyable_keys.push(key.clone());
+                mutatable_lives -= 1;
+            }
         });
+        if self.lives != mutatable_lives {
+            self.lives = mutatable_lives;
+            self.update_js_values(&update_js);
+        }
 
         for k in &destroyable_keys {
             self.asteroids.remove(k);
         }
-
 
         /* Position updates */
         self.ship.update(delta_time);
@@ -419,6 +440,5 @@ impl RenderObjectTrait for AsteroidCanvas {
         for asteroid in self.asteroids.iter_mut() {
             asteroid.1.update(delta_time);
         }
-
     }
 }

@@ -147,11 +147,12 @@ export function Game({ wasm }: Props): ReactElement {
   useEffect(() => {
     if (isActive) {
       client?.set_renderable(wasm.RenderableOption.Asteroid, new wasm.Transform(0, 0, 0));
-      client?.set_score_function(setScore);
+      client?.set_score_function(
+        (scoreNew: number, livesNew: number) => {
+          setScore(scoreNew); setLives(livesNew);
+        });
     }
   }, [client, isActive, wasm.RenderableOption.Asteroid, wasm.Transform]);
-
-  console.log(score);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -163,7 +164,6 @@ export function Game({ wasm }: Props): ReactElement {
       clearInterval(interval);
     }
   }, [isActive]);
-  console.log(seconds);
 
   return (
     <div className={style['game-wrapper']}>
