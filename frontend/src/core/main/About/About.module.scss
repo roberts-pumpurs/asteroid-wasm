@@ -36,6 +36,17 @@
             flex-direction: column;
             justify-content: space-between;
         }
+
+        .variable {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+
+            h4{
+                padding: 1rem;
+            }
+        }
     }
 
     h3 {
