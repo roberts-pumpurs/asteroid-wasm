@@ -2,14 +2,16 @@ import React, {
   ReactElement, useState, useEffect, useCallback,
 } from 'react';
 import { CanvasData, GlClient } from 'wasm-app';
-import style from './Game.module.scss';
-import { RenderableDropdown } from './RenderableDropdown';
+import style from 'core/main/About/About.module.scss';
+import { Status } from './Status';
 
 interface Props {
   wasm: typeof import('wasm-app');
 }
 
 const FPS_THROTTLE = 1000 / 144; // 144 fps
+const UPDATE_THROTTLE = 1000 / 288; // 144 fps
+const USER_INPUT_THROTTLE = 1000 / 500; // 144 fps
 
 export function Game({ wasm }: Props): ReactElement {
   const [canvas, setCanvas] = useState<CanvasData>();
@@ -37,7 +39,18 @@ export function Game({ wasm }: Props): ReactElement {
       ) {
         client?.render();
       }
-      client?.update(time - (previousTimeRef.current || 0));
+      if (
+        previousTimeRef.current !== undefined
+        && time - previousTimeRef.current > UPDATE_THROTTLE
+      ) {
+        client?.update(time - (previousTimeRef.current || 0));
+      }
+      if (
+        previousTimeRef.current !== undefined
+        && time - previousTimeRef.current > USER_INPUT_THROTTLE
+      ) {
+        // TODO Call function to ONLY update user input
+      }
       previousTimeRef.current = time;
       requestRef.current = requestAnimationFrame(animate);
     },
@@ -121,9 +134,14 @@ export function Game({ wasm }: Props): ReactElement {
     [client, rectEl],
   );
 
+  /* Set the factual renderable object */
+  useEffect(() => {
+    client?.set_renderable(wasm.RenderableOption.Asteroid, new wasm.Transform(0, 0, 0));
+  }, [client, wasm.RenderableOption.Asteroid, wasm.Transform]);
+
   return (
     <div className={style['game-wrapper']}>
-      <h1>WebAssembly Test samples programmed in Rust</h1>
+      <h1>1979 ATARI Asteroids Clone</h1>
       <div className={style['canvas-and-options']}>
         {/* Create the canvas that will be used for rendering stuff */}
         <canvas
@@ -138,7 +156,7 @@ export function Game({ wasm }: Props): ReactElement {
           onKeyUp={keyUp}
         />
         {wasm && canvas && client && (
-          <RenderableDropdown client={client} wasm={wasm} />
+          <Status client={client} wasm={wasm} />
         )}
       </div>
     </div>
