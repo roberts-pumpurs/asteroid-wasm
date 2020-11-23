@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { CanvasData, GlClient } from 'wasm-app';
 import style from 'core/main/About/About.module.scss';
+import { GameState } from 'types';
 import { Status } from './Status';
 import { GameOverlay } from './GameOverlay';
 
@@ -10,12 +11,6 @@ import { GameOverlay } from './GameOverlay';
 const FPS_THROTTLE = 1000 / 144; // 144 fps
 const UPDATE_THROTTLE = 1000 / 288; // 144 fps
 const USER_INPUT_THROTTLE = 1000 / 500; // 144 fps
-
-export enum GameState {
-  INITIALIZING,
-  RUNNING,
-  GAME_OVER,
-}
 
 /* Component */
 interface Props {

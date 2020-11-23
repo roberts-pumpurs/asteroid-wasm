@@ -14,3 +14,9 @@ export interface Game {
   start: string,
   end: string,
 }
+
+export enum GameState {
+  INITIALIZING,
+  RUNNING,
+  GAME_OVER,
+}

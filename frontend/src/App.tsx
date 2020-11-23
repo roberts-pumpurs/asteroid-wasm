@@ -14,11 +14,10 @@ function App(): ReactElement {
       </header>
       <main>
         <Main />
-
-          {/* Spawn stars */}
-          {Array.apply(null, Array(100)).map(
-            (_, index) => <div key={index} className={style.star} />,
-          )}
+        {/* Spawn stars */}
+        {Array.apply(null, Array(100)).map(
+          (_, index) => <div key={index} className={style.star} />,
+        )}
       </main>
       <footer>
         <Footer />

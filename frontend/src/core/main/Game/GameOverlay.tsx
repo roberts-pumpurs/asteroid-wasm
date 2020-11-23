@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react';
 import { useSpring, animated } from 'react-spring/web';
-import { GameState } from './Game';
+import { GameState } from 'types';
 
 import style from './Game.module.scss';
 
@@ -13,8 +13,6 @@ interface Props {
 export function GameOverlay({ setActive, currentState, score }: Props): ReactElement {
   const { x } = useSpring({ from: { x: 0 }, x: 1, config: { duration: 5000 } });
 
-  let title = <></>;
-  let content = <></>;
   switch (currentState) {
     case GameState.INITIALIZING:
       return (
@@ -52,7 +50,7 @@ export function GameOverlay({ setActive, currentState, score }: Props): ReactEle
             marginRight: '10rem',
           }}
         >
-          <h3>{title}</h3>
+          <h3>GAME OVER</h3>
           <div className={style.subtitle}>
             You scored {score} points!
           </div>
