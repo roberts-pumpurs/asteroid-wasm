@@ -1,21 +1,43 @@
 @use '../../../utils/base';
 
 .rules {
-    margin-top: 6rem;
-    margin-left: -13rem;
     position: absolute;
+    display: flex;
+    flex-direction: column;
+
+    width: 50rem;
+
+    margin-top: 6rem;
 
     h3 {
         font-size: 3.5rem;
     }
+
+    .subtitle {
+        margin-bottom: 2rem;
+    }
+
+    .input-container {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 2rem;
+
+        div {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            input {
+                margin: 0.5rem;
+            }
+        }
+    }
+
     div {
         font-size: 2rem;
-        // text-align: justify;
-        margin-left: 2rem;
     }
 
     button {
-        width: 85%;
+        justify-content: center;
     }
 
 }

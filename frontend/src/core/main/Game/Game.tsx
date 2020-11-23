@@ -81,11 +81,11 @@ export function Game({ wasm }: Props): ReactElement {
   }, [animate]); // Make sure the effect runs only once
 
   useEffect(() => {
-    if (canvas !== undefined) {
+    if (canvas !== undefined && wasm !== undefined) {
       const tmpClient = new wasm.GlClient(canvas);
       setClient(tmpClient);
     }
-  }, [canvas, wasm.GlClient]);
+  }, [canvas, wasm, wasm.GlClient]);
 
   useEffect(() => {
     setRectEl(document.getElementById(canvasId)?.getBoundingClientRect());
@@ -192,7 +192,20 @@ export function Game({ wasm }: Props): ReactElement {
       <div className={style['canvas-and-options']}>
         {/* Create the canvas that will be used for rendering stuff */}
         {!(gameState === GameState.RUNNING)
-          && <GameOverlay setActive={() => setGameState(GameState.RUNNING)} currentState={gameState} />}
+          && (
+          <GameOverlay
+            setActive={() => {
+              const tmpClient = new wasm.GlClient(canvas!);
+              setClient(tmpClient); setGameState(GameState.RUNNING);
+              setLives(3);
+              setScore(0);
+              setSeconds(0);
+              setCanvas(new wasm.CanvasData(width, height, degrees, canvasId));
+            }}
+            currentState={gameState}
+            score={score}
+          />
+          )}
         <canvas
           tabIndex={0}
           id={canvasId}
@@ -204,8 +217,8 @@ export function Game({ wasm }: Props): ReactElement {
           onKeyDown={keyDown}
           onKeyUp={keyUp}
         />
-        {wasm && canvas && client && (
-          <Status client={client} wasm={wasm} lives={lives} score={score} seconds={seconds} />
+        {wasm && canvas && client && gameState !== GameState.INITIALIZING && (
+          <Status lives={lives} score={score} seconds={seconds} />
         )}
       </div>
     </div>
