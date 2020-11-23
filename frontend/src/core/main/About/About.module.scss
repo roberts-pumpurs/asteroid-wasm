@@ -18,9 +18,7 @@
         justify-content: center;
 
         canvas {
-            border-bottom: 0.2rem solid base.$accent-one;
-            border-top: 0.2rem solid base.$accent-one;
-            border-left: 0.2rem solid base.$accent-one;
+            border: 0.2rem solid base.$accent-one;
         }
     }
 
