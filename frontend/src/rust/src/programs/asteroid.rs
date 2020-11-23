@@ -179,6 +179,7 @@ pub struct AsteroidCanvas {
     pub score: u64,
     pub lives: u8,
     max_asteroid_id: u64,
+    min_asteroids_alive: usize,
     // GL
     program: WebGlProgram,
     attribute_locations: AttributeLocationsLocal,
@@ -212,6 +213,7 @@ impl RenderObjectTrait for AsteroidCanvas {
             model_view_matrix: gl.get_uniform_location(&program, "uMVMatrix").unwrap(),
         };
         Self {
+            min_asteroids_alive: 20,
             lives: 3,
             bullets: vec![],
             asteroids: HashMap::new(),
@@ -293,10 +295,10 @@ impl RenderObjectTrait for AsteroidCanvas {
         if self.lives > 0 {
             /* Keyboard event capture */
             if self.input.keyboard_a {
-                self.ship.obj.angle += -5.;
+                self.ship.obj.angle += -7.;
             }
             if self.input.keyboard_d {
-                self.ship.obj.angle += 5.;
+                self.ship.obj.angle += 7.;
             }
             if self.input.keyboard_w {
                 self.ship.obj.speed += 0.0001;
@@ -320,7 +322,7 @@ impl RenderObjectTrait for AsteroidCanvas {
         /* Generate asteroids */
 
         let mut rng = rand::thread_rng();
-        if self.asteroids.len() < 20 {
+        if self.asteroids.len() < self.min_asteroids_alive {
             const INIT_RADIUS: f32 = 1.;
             let mut asteroid = Asteroid::new(gl, Z_OFFSET, INIT_RADIUS);
 
@@ -380,7 +382,7 @@ impl RenderObjectTrait for AsteroidCanvas {
         // Split asteroids
         let mut destroyable_keys = vec![];
         let mut children_asteroids = HashMap::new();
-        let mut local_max = self.max_asteroid_id.clone();
+        let local_max = self.max_asteroid_id.clone();
         let mut iterations: u64 = 0;
         removable_asteroids.iter().for_each(|(key, a)| {
             if a.obj.radius > 0.3 {
@@ -460,6 +462,15 @@ impl RenderObjectTrait for AsteroidCanvas {
         }
         for asteroid in self.asteroids.iter_mut() {
             asteroid.1.update(delta_time);
+        }
+
+        /* Increase difficulty */
+        if (10..20).contains(&self.score) {
+            self.min_asteroids_alive = 30;
+        } else if (40..50).contains(&self.score) {
+            self.min_asteroids_alive = 50;
+        } else if (100..200).contains(&self.score) {
+            self.min_asteroids_alive = 70;
         }
     }
 }
