@@ -1,5 +1,7 @@
 import axios, { AxiosError } from 'axios';
+import { Country, Game, User } from 'types';
 import { GameListing, GameListingResponse, Leaderboard } from 'utils/Responses';
+import { SaveGameRequestParam } from './Requests';
 
 const apiClient = axios.create({
   xsrfCookieName: 'csrftoken',
@@ -7,8 +9,11 @@ const apiClient = axios.create({
 });
 
 const urls = {
-  'fetch-games': '/api/games',
-  'fetch-leaderboards': '/api/leaderboards',
+  games: '/api/games',
+  users: '/api/users',
+  leaderboards: '/api/leaderboards',
+  country: 'http://ip-api.com/json/?fields=countryCode,country',
+  backendCountry: '/api/countries',
 };
 
 function isAxiosError(err: AxiosError | unknown): err is AxiosError {
@@ -56,9 +61,16 @@ async function download<T, B>(url: string, params: B): Promise<T> {
   return response.data;
 }
 
+
 class Requester {
-  FetchGames = (): Promise<GameListingResponse> => get(urls['fetch-games'], {});
-  FetchLeaderboards = (): Promise<Leaderboard> => get(urls['fetch-leaderboards'], {});
+  FetchGames = (): Promise<GameListingResponse> => get(urls.games, {});
+
+  FetchLeaderboards = (): Promise<Leaderboard> => get(urls.leaderboards, {});
+
+  SaveGame = (params: SaveGameRequestParam): Promise<{created: Game | null}> => post(urls.games, params);
+
+  getCountry = (): Promise<Country> => get(urls.country, {});
+
 }
 
 const requester = new Requester();

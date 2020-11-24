@@ -17,6 +17,7 @@ export interface SingleUserAggregate {
   count: number,
   country: Country,
 }
+
 export interface Leaderboard {
   [key: string]: SingleUserAggregate
 }

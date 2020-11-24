@@ -34,7 +34,7 @@ export function LeaderboardComponent(): ReactElement {
                 <td className={style.name}>{el.user.username}</td>
                 <td className={style.duration}>{el.duration / el.count}</td>
                 <td className={style.score}>{el.score / el.count}</td>
-                <td className={style.country}>{el.country.name}</td>
+                <td className={style.country}>{el.country.countryCode}</td>
               </tr>
             );
           })}

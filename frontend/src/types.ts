@@ -5,8 +5,8 @@ export interface User {
 }
 
 export interface Country {
-  name: string,
-  population: number,
+  country: string,
+  countryCode: string,
 }
 
 export interface Game {

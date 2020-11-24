@@ -55,13 +55,20 @@ app.post('/api/countries', async (req, res) => {
 
 interface Params {
   game: Game,
-  user: User
+  user: User,
+  country: Country,
 }
 app.post('/api/games', async (req, res) => {
   const obj: Params = req.body;
-  const created = await createGame(obj.game, obj.user);
-  res.send({ created });
-  res.status(created ? 201 : 400);
+
+  const createdUser = await createUser(obj.user);
+  const createdCountry = await createCountry(obj.country);
+  const addedUser = await addUserToCounty(obj.country, obj.user);
+  const createdGame = await createGame(obj.game, obj.user);
+
+  const allCretedSuccessfully = createdUser && createdCountry && addedUser && createdGame;
+  res.status(allCretedSuccessfully ? 201 : 400);
+  res.send({ allCretedSuccessfully });
 });
 
 app.get('/api/users', async (req, res) => {

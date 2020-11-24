@@ -1,17 +1,36 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { useSpring, animated } from 'react-spring/web';
-import { GameState } from 'types';
+import {
+  Country, Game, GameState, User,
+} from 'types';
+import { Requester } from 'utils/Requester';
 
 import style from './Game.module.scss';
 
 interface Props {
   setActive: (arg0: boolean) => void;
   currentState: GameState;
-  score: number
+  score: number;
+  secondsElapsed: number;
 }
 
-export function GameOverlay({ setActive, currentState, score }: Props): ReactElement {
+export function GameOverlay({
+  setActive, currentState, score, secondsElapsed,
+}: Props): ReactElement {
   const { x } = useSpring({ from: { x: 0 }, x: 1, config: { duration: 5000 } });
+  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
+  const [surname, setSurname] = useState('');
+  const [startTime, setStartTime] = useState<number>(0);
+  const [playerCountry, setPlayerCountry] = useState<Country>();
+
+  useEffect(() => {
+    async function getCountry(): Promise<void> {
+      const c = await Requester.getCountry();
+      setPlayerCountry(c);
+    }
+    void getCountry();
+  }, []);
 
   switch (currentState) {
     case GameState.INITIALIZING:
@@ -36,7 +55,10 @@ export function GameOverlay({ setActive, currentState, score }: Props): ReactEle
           <button
             className={`${style.btn} ${style['draw-border']}`}
             type="button"
-            onClick={() => setActive(true)}
+            onClick={() => {
+              setStartTime(Date.now());
+              setActive(true);
+            }}
           > START
           </button>
         </div>
@@ -57,20 +79,43 @@ export function GameOverlay({ setActive, currentState, score }: Props): ReactEle
 
           <div className={style['input-container']}>
             <div>
-              Username: <input type="text" />
+              Username: <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
             </div>
             <div>
-              Name: <input type="text" />
+              Name: <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
             <div>
-              Surname: <input type="text" />
+              Surname: <input
+                type="text"
+                value={surname}
+                onChange={(e) => setSurname(e.target.value)}
+              />
             </div>
           </div>
-
           <button
             className={`${style.btn} ${style['draw-border']}`}
             type="button"
-            onClick={() => null}
+            onClick={async () => {
+              const user: User = {
+                name,
+                surname,
+                username,
+              };
+              const game: Game = {
+                score,
+                start: new Date(startTime).toISOString(),
+                end: new Date(startTime + secondsElapsed).toISOString(),
+              };
+              void Requester.SaveGame({ user, country: playerCountry || { country: 'UNKNOWN', countryCode: '??' }, game });
+            }}
           > SAVE SCORE
           </button>
 

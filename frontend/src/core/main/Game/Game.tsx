@@ -199,6 +199,7 @@ export function Game({ wasm }: Props): ReactElement {
             }}
             currentState={gameState}
             score={score}
+            secondsElapsed={seconds}
           />
           )}
         <canvas
