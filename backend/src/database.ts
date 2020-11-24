@@ -34,11 +34,11 @@ export async function createCountry(
 ): Promise<boolean> {
   const session = driver.session();
   try {
-    await session.run('CREATE (n:country {name: $name, population: $population}) RETURN n', {
-      name: country.name,
-      population: country.population,
+    await session.run('MERGE (n:country {country: $country, countryCode: $countryCode}) RETURN n', {
+      country: country.country,
+      countryCode: country.countryCode,
     });
-    await session.run('CREATE CONSTRAINT IF NOT EXISTS ON (n:country) ASSERT n.name IS UNIQUE', {});
+    await session.run('CREATE CONSTRAINT IF NOT EXISTS ON (n:country) ASSERT n.country IS UNIQUE', {});
 
     return true;
   } catch (error) {
@@ -53,7 +53,6 @@ export async function createGame(
   const session = driver.session();
   try {
     const createdGame = await session.run(`
-
     CREATE (newGame:game {score: $score, start: $start, end: $end})
     WITH newGame
     MATCH (a:user)
@@ -62,11 +61,12 @@ export async function createGame(
     return newGame
     `, {
       score: game.score,
-      start: game.start.toISOString(),
-      end: game.end.toISOString(),
+      start: game.start,
+      end: game.end,
       username: player.username,
     });
 
+    // console.log(createdGame.);
     return createdGame.records[0].get(0).properties;
   } catch (error) {
     console.log(error);
@@ -90,11 +90,11 @@ export async function addUserToCounty(
     // Add user to the newly selected country
     await session.run(`
     MATCH (a:user), (b:country)
-    WHERE a.username = $username AND b.name = $name
+    WHERE a.username = $username AND b.country = $country
     CREATE (a)-[:LIVES_IN]->(b)
     return b
     `, {
-      name: country.name,
+      country: country.country,
       username: player.username,
     });
 
@@ -176,33 +176,33 @@ export async function initial(): Promise<void> {
   // Insert temp data for games
   const g1 = {
     score: 12,
-    start: new Date('2020-04-07 18:00:00'),
-    end: new Date('2020-04-07 18:03:00'),
+    start: '2020-04-07 18:00:00',
+    end: '2020-04-07 18:03:00',
   };
   const g2 = {
     score: 19,
-    start: new Date('2020-04-07 19:00:00'),
-    end: new Date('2020-04-07 20:03:00'),
+    start: '2020-04-07 19:00:00',
+    end: '2020-04-07 20:03:00',
   };
   const g3 = {
     score: 33,
-    start: new Date('1999-04-07 19:00:00'),
-    end: new Date('1999-04-07 20:03:00'),
+    start: '1999-04-07 19:00:00',
+    end: '1999-04-07 20:03:00',
   };
   const g4 = {
     score: 33,
-    start: new Date('2020-04-08 19:00:00'),
-    end: new Date('2020-04-08 20:03:00'),
+    start: '2020-04-08 19:00:00',
+    end: '2020-04-08 20:03:00',
   };
   const g5 = {
     score: 100,
-    start: new Date('2020-04-09 19:00:00'),
-    end: new Date('2020-04-09 20:03:00'),
+    start: '2020-04-09 19:00:00',
+    end: '2020-04-09 20:03:00',
   };
   const g6 = {
     score: 44,
-    start: new Date('2020-04-10 19:00:00'),
-    end: new Date('2020-04-10 20:03:00'),
+    start: '2020-04-10 19:00:00',
+    end: '2020-04-10 20:03:00',
   };
 
   // Create temp game data
@@ -214,9 +214,10 @@ export async function initial(): Promise<void> {
   await createGame(g6, u1);
 
   // Insert temp data for countries
-  const c1 = { name: 'Latvia', population: 2000000 };
-  const c2 = { name: 'Lithuania', population: 3500000 };
-  const c3 = { name: 'Estonia', population: 1500000 };
+  const c1 = { country: 'Latvia', countryCode: 'LV' };
+  const c2 = { country: 'Lithuania', countryCode: 'LT' };
+  const c3 = { country: 'Estonia', countryCode: 'EST' };
+
   if (!await createCountry(c1)) return;
   if (!await createCountry(c2)) return;
   if (!await createCountry(c3)) return;

@@ -5,15 +5,16 @@ export interface User {
   username: string,
 }
 
+
 export interface Country {
-  name: string,
-  population: number,
+  country: string,
+  countryCode: string,
 }
 
 export interface Game {
   score: number,
-  start: Date,
-  end: Date,
+  start: string,
+  end: string,
 }
 
 /* Composites */

@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import {
+  addUserToCounty,
   createCountry, createGame, createUser, getGames, getNumNodes, getUsers, initial,
 } from './database';
 import {
@@ -41,15 +42,15 @@ app.get('/api/nodes', async (req, res) => {
 app.post('/api/users', async (req, res) => {
   const obj: User = req.body;
   const created = await createUser(obj);
-  res.send({ created });
   res.status(created ? 201 : 400);
+  res.send({ created });
 });
 
 app.post('/api/countries', async (req, res) => {
   const obj: Country = req.body;
   const created = await createCountry(obj);
-  res.send({ created });
   res.status(created ? 201 : 400);
+  res.send({ created });
 });
 
 interface Params {
@@ -99,7 +100,7 @@ app.get('/api/leaderboards', async (req, res) => {
         count: 0,
         user: el.user,
         duration: 0,
-        country: { name: '', population: 0 },
+        country: { country: '', countryCode: '' },
       };
     }
     const duration = (new Date(el.game.end).getTime() - new Date(el.game.start).getTime()) / 60000;
