@@ -8,7 +8,7 @@ import { WasmContextProvider } from 'WasmContext';
 const rust = import('wasm-app');
 
 rust
-  .then((module: typeof import('wasm-app') ) => {
+  .then((module: typeof import('wasm-app')) => {
     ReactDOM.render(
       <WasmContextProvider value={{ wasm: module }}>
         <Router>
@@ -29,3 +29,7 @@ rust
 // unregister() to register() below. Note this comes with some pitfalls.
 // If you want your app to work offline and load faster, you can change
 serviceWorker.unregister();
+
+// Disable random scrolldown upon pressing `space`. Annoying when shooting
+// asteroids
+window.onkeydown = (ev: KeyboardEvent): any => !(ev.key === ' ');
