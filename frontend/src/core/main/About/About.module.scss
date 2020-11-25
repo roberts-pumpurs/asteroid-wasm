@@ -22,7 +22,7 @@
         }
 
         @media screen and (max-height: 720px),
-        (max-width: 800px) {
+        (max-width: 767px) {
             display: none;
         }
 
@@ -38,7 +38,7 @@
         background-color: red;
 
         @media screen and (max-height: 720px),
-        (max-width: 800px) {
+        (max-width: 767px) {
             display: flex;
         }
     }
@@ -54,6 +54,9 @@
             display: flex;
             flex-direction: row;
             justify-content: space-between;
+            h3 {
+                display: none;
+            }
         }
 
         .options {
@@ -70,6 +73,17 @@
 
             h4 {
                 padding: 1rem;
+            }
+
+            @media screen and (max-width: 1380px) {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+
+                h4 {
+                    padding: 0rem;
+                    font-size: 1rem;
+                }
             }
         }
     }

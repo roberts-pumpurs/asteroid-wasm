@@ -218,7 +218,7 @@ export function Game({ wasm }: Props): ReactElement {
         )}
       </div>
       <div className={style['error-message']}>
-        <h1>To see the WASM demo, screen size must be at least 800x720px</h1>
+        <h1>To see the WASM demo, screen size must be at least 768x721px</h1>
       </div>
 
     </div>
