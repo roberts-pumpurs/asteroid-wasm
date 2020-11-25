@@ -1,46 +1,26 @@
 @use "../../utils/base";
 
-
 nav {
-    /* ----------- Positioning ----------- */
-    align-items: center;
-    justify-content: space-between;
-    /*  -----------  Display & Box Model -----------  */
-    display: flex;
-
     .logo {
-        display: inline-block;
-        width: 7rem;
-        height: 2rem;
+        a {
+            color: black;
+            font-size: 1.5rem;
+        }
     }
 
     .nav-links {
-        list-style: none;
+        .nav-item {
+            padding-top: 1rem;
 
-    }
+            a {
+                color: black;
 
-    .nav-item {
-        display: inline-block;
-        padding: 0.3rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
+                &:hover {
+                    color: base.$accent-one;
+                }
+            }
 
-        @media screen and (max-width: 1024px) {
-            padding: 0em;
-            padding-left: 0.1rem;
-            padding-right: 0.1rem;
-        }
 
-    }
-
-    /* Color */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.713);
-    a {
-        padding: 1rem;
-        border: 0.1rem solid rgba(255, 255, 255, 0);
-        &:hover {
-            border: 0.1rem solid rgba(255, 255, 255, 0.713);
         }
     }
-
 }
