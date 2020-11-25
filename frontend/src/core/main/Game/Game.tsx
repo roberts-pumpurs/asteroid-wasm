@@ -181,6 +181,16 @@ export function Game({ wasm }: Props): ReactElement {
     }
   }, [interval, lives]);
 
+
+  /* Autofocus the canvas */
+  const [focusable, setFocusable] = useState<HTMLCanvasElement | null>();
+
+  useEffect(() => {
+    if (focusable !== undefined && gameState === GameState.RUNNING) {
+      (focusable as any).focus();
+    }
+  }, [focusable, gameState]);
+
   return (
     <div className={style['game-wrapper']}>
       <h1>1979 ATARI Asteroids Clone</h1>
@@ -203,6 +213,7 @@ export function Game({ wasm }: Props): ReactElement {
           />
           )}
         <canvas
+          ref={(e) => { setFocusable(e); }}
           tabIndex={0}
           id={canvasId}
           height={height}
