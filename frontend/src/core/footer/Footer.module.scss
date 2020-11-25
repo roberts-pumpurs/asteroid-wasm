@@ -1,20 +1,37 @@
 @use "../../utils/base";
 
 
-footer {
+.footer-sub {
     padding: 2rem;
     display: flex;
     flex-direction: row;
     justify-content: center;
     background-color: base.$primary-two;
+
     .icon {
         position: absolute;
         margin-left: -3rem;
         margin-top: -0.5rem;
         font-size: 2rem;
+
+        @media screen and (max-width: 600px) {
+            position: relative;
+            margin: 0rem;
+            margin-right: 1rem;
+        }
     }
 
     a {
         margin-right: 5rem;
+
+        @media screen and (max-width: 600px) {
+            padding-bottom: 1rem;
+            margin-left: 3rem;
+        }
+    }
+
+    @media screen and (max-width: 600px) {
+        flex-direction: column;
+        font-size: 1rem;
     }
 }
