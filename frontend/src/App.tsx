@@ -9,19 +9,21 @@ import style from 'utils/stars.module.scss';
 function App(): ReactElement {
   return (
     <>
-      <header>
+      {/* <header> */}
         <Header />
-      </header>
-      <main>
-        <Main />
-        {/* Spawn stars */}
-        {Array.apply(null, Array(100)).map(
-          (_, index) => <div key={index} className={style.star} />,
-        )}
+      {/* </header> */}
+      <main id="main">
+        <section id="content">
+          <Main />
+          {/* Spawn stars */}
+          {Array.apply(null, Array(100)).map(
+            (_, index) => <div key={index} className={style.star} />,
+            )}
+        </section>
+        <footer>
+          <Footer />
+        </footer>
       </main>
-      <footer>
-        <Footer />
-      </footer>
     </>
   );
 }

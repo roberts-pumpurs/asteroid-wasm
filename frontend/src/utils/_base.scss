@@ -45,19 +45,25 @@ body {
     align-items: stretch;
 }
 
+#content,
 main {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-grow: 1;
+}
+#content {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     flex-grow: 1;
 }
 
-header,
-main,
-footer {
-    flex-shrink: 0;
-}
 /* COLORS */
 
 $primary-one: black;
 $primary-two: #21083062;
+// $primary-two: #583a6a62;
 $accent-one: #9672A2;
 $accent-two: #FFFFFF;
 
