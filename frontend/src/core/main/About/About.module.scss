@@ -17,11 +17,12 @@
         flex-direction: row;
         justify-content: center;
 
-        @media screen and (min-width: 768px) and (max-width: 1280px) {
+        @media screen and (max-width: 1380px) {
             flex-direction: column;
         }
 
-        @media screen and (min-width: 320px) and (max-width: 768px) {
+        @media screen and (max-height: 720px),
+        (max-width: 800px) {
             display: none;
         }
 
@@ -30,12 +31,15 @@
             border: 0.2rem solid base.$accent-one;
         }
 
-        .error-message {
-            display: none;
+    }
 
-            @media screen and (min-width: 320px) and (max-width: 1024px) {
-                display: block;
-            }
+    .error-message {
+        display: none;
+        background-color: red;
+
+        @media screen and (max-height: 720px),
+        (max-width: 800px) {
+            display: flex;
         }
     }
 
@@ -45,6 +49,12 @@
         border-right: 0.2rem solid base.$accent-one;
         border-top: 0.2rem solid base.$accent-one;
         border-bottom: 0.2rem solid base.$accent-one;
+
+        @media screen and (max-width: 1380px) {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
 
         .options {
             display: flex;

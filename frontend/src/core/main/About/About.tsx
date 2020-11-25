@@ -87,7 +87,8 @@ export function About({ wasm }: Props): ReactElement {
 
   return (
     <div className={style['game-wrapper']}>
-      <div className={style['text']}>
+
+      <div className={style.text}>
         <section>
           <h1>About</h1>
           <div>
@@ -105,7 +106,29 @@ export function About({ wasm }: Props): ReactElement {
             behaviour.
           </div>
         </section>
+      </div>
 
+      <h1>Small Rust/WASM/WebGL Samples</h1>
+      <div className={style['canvas-and-options']}>
+        {/* Create the canvas that will be used for rendering stuff */}
+        <canvas
+          tabIndex={0}
+          id={canvasId}
+          height={height}
+          width={width}
+          onMouseDown={mouseDown}
+          onMouseUp={mouseUp}
+          onMouseMove={mouseMove}
+        />
+        {wasm && canvas && client && (
+          <RenderableDropdown client={client} wasm={wasm} />
+        )}
+      </div>
+      <div className={style['error-message']}>
+        <h1>To see the WASM demo, screen size must be at least 800x720px</h1>
+      </div>
+
+      <div className={style.text}>
         <section>
           <h2>React</h2>
           <div>
@@ -154,7 +177,7 @@ export function About({ wasm }: Props): ReactElement {
         </section>
 
         <section>
-          <h2>NodeJS/Express</h2>
+          <h2>NodeJS Express</h2>
           <div>
             If I had a choice, I would never use anything JS related for the
             backend. Rust would be my go to choice with something like `actix-web`
@@ -180,22 +203,6 @@ export function About({ wasm }: Props): ReactElement {
           </div>
         </section>
 
-      </div>
-      <h1>Small Rust/WASM/WebGL Samples</h1>
-      <div className={style['canvas-and-options']}>
-        {/* Create the canvas that will be used for rendering stuff */}
-        <canvas
-          tabIndex={0}
-          id={canvasId}
-          height={height}
-          width={width}
-          onMouseDown={mouseDown}
-          onMouseUp={mouseUp}
-          onMouseMove={mouseMove}
-        />
-        {wasm && canvas && client && (
-          <RenderableDropdown client={client} wasm={wasm} />
-        )}
       </div>
     </div>
   );

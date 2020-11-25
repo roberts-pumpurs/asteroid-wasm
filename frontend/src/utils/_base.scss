@@ -61,8 +61,6 @@ $primary-two: #21083062;
 $accent-one: #9672A2;
 $accent-two: #FFFFFF;
 
-
-
 /* Buttons and inputs */
 //=== Drawing effect
 // Code from: https://codepen.io/giana/pen/xdXpJB
@@ -131,8 +129,12 @@ $accent-two: #FFFFFF;
     cursor: pointer;
     line-height: 1.5;
     font-size: 1.5rem;
-    // font: 700 1.2rem 'Roboto Slab', sans-serif;
     padding: 1em 2em;
+
+    @media screen and (max-width: 1380px) {
+        padding: 0.5em 1em;
+        font-size: 1rem;
+    }
 }
 
 .input {
@@ -144,3 +146,4 @@ $accent-two: #FFFFFF;
     -moz-appearance: textfield;
     text-align: center;
 }
+
