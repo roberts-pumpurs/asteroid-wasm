@@ -20,7 +20,7 @@ export function LeaderboardComponent(): ReactElement {
       <table>
         <thead>
           <th>Player</th>
-          <th>Avg duration (min)</th>
+          <th>Avg duration (sec)</th>
           <th>Avg Score</th>
           <th>Country</th>
         </thead>

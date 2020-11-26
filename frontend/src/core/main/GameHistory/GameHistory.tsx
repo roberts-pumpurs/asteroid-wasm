@@ -19,7 +19,7 @@ export function GameHistory(): ReactElement {
     <div className={style['game-table']}>
       <table>
         <thead>
-          <th>Game duration (min)</th>
+          <th>Game duration (sec)</th>
           <th>Score</th>
           <th>Player</th>
           <th>Country</th>
