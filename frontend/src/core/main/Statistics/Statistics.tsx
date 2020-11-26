@@ -1,5 +1,6 @@
 import React, { ReactElement, useCallback, useState } from 'react';
-import { CountryChart } from './Charts/CountryChart';
+import { CountryChartPlaytime } from './Charts/CountryChartPlaytime';
+import { CountryChartScore } from './Charts/CountryChartScore';
 import { GameHistory } from './GameHistory/GameHistory';
 import { LeaderboardComponent } from './Leaderboard/Leaderboard';
 
@@ -23,8 +24,12 @@ const tables: { [key: number]: Selectable} = {
 
 const charts: { [key: number]: Selectable} = {
   0: {
-    item: <CountryChart />,
+    item: <CountryChartScore />,
     title: 'Countries With The Most Score',
+  },
+  1: {
+    item: <CountryChartPlaytime />,
+    title: 'Countries With The Most Playtime',
   },
 };
 

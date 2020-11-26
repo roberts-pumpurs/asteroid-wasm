@@ -3,7 +3,7 @@ import { Requester } from 'utils/Requester';
 import { GameListing } from 'utils/Responses';
 import { PieChartCustom } from './Chart';
 
-export function CountryChart(): ReactElement {
+export function CountryChartPlaytime(): ReactElement {
   const [games, setGames] = useState<Array<GameListing>>([]);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export function CountryChart(): ReactElement {
     if (!Object.keys(countryScoreMap).includes(e.country.countryCode)) {
       countryScoreMap[e.country.countryCode] = 0;
     }
-    countryScoreMap[e.country.countryCode] += e.game.score;
+    countryScoreMap[e.country.countryCode] += (new Date(e.game.end).getTime() - new Date(e.game.start).getTime());
   });
   const countryScoreData = Object.keys(countryScoreMap).map(
     (key) => ({ type: key, data: countryScoreMap[key] }),
