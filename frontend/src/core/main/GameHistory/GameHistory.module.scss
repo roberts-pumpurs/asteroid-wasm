@@ -1,37 +1,39 @@
 @use '../../../utils/base';
 
 .game-table {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
     margin: 4rem;
-
-
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 1rem;
 
     table {
         border-collapse: collapse;
         border: 0.1rem solid rgba(255, 255, 255, 0.713);
-        font-size: 2rem;
-        width: 100%;
+        font-size: 1.3rem;
+
         thead {
             padding: 1rem;
+
             th {
                 border-bottom: 0.1rem solid rgba(255, 255, 255, 0.713);
                 background-color: base.$primary-two;
-                padding: 0.2em;
+                padding-left: 1.5em;
+                padding-right: 1.5em;
             }
         }
 
         tr {
+            font-size: 1rem;
             text-align: center;
-            &:hover{
-                background-color: base.$accent-two;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.624);
                 color: base.$primary-one;
             }
 
             td {
-                padding: 0.2em;
+                padding: 0.1em;
             }
         }
     }
