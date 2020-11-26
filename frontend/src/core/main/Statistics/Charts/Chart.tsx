@@ -3,7 +3,7 @@ import React, { ReactElement, useState } from 'react';
 import {
   Sector, Pie, PieChart, ResponsiveContainer,
 } from 'recharts';
-import style from './GameHistory.module.scss';
+import style from '../Statistics.module.scss';
 
 interface DataPoint { type: string, data: number }
 
@@ -78,7 +78,6 @@ export function PieChartCustom({ data }: Props): ReactElement {
             activeShape={renderActiveShape}
             data={data}
             innerRadius={100}
-            // outerRadius={80}
             fill="#9672A2"
             onMouseEnter={onPieEnter}
           />

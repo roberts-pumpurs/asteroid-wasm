@@ -65,13 +65,8 @@ export function Header(): React.ReactElement {
             </Link>
           </li>
           <li className={sass['nav-item']}>
-            <Link to="/leaderboards">
-              Leaderboards
-            </Link>
-          </li>
-          <li className={sass['nav-item']}>
-            <Link to="/game-history">
-              Game History
+            <Link to="/statistics">
+              Statistics
             </Link>
           </li>
           <li className={sass['nav-item']}>

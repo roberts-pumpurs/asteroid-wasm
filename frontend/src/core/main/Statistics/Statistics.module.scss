@@ -10,8 +10,20 @@
     margin-left: auto;
     margin-right: auto;
 
+    .title-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        button {
+            padding: 1rem;
+            border: none;
+            cursor: pointer;
+        }
+    }
 
     table {
+        width: 70rem;
         margin-top: 3rem;
         border-collapse: collapse;
         border: 0.1rem solid #ffffffb6;
@@ -30,19 +42,25 @@
             }
         }
 
-        tr {
-            font-size: 1rem;
-            text-align: center;
+        tbody {
+            tr {
+                font-size: 1rem;
+                text-align: center;
 
-            &:hover {
-                background-color: rgba(255, 255, 255, 0.624);
-                color: base.$primary-one;
-            }
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.624);
+                    color: base.$primary-one;
+                }
 
-            td {
-                padding: 0.1em;
+                td {
+                    padding: 0.1em;
+                }
             }
         }
+    }
+
+    .margin-top {
+        margin-top: 5rem;
     }
 }
 
