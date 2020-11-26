@@ -1,10 +1,13 @@
-# docker-django-drw-react-tsx-rust-webgl
+# Asteroid WASM
 
-A slightly opinionated local dev full stack template using docker-compose with Django backend and React frontend; all served behind NGINX. Keeping the full stack in one repo for ease of use. Composed of ideas from multiple tutorials, forum threads and official docs. Nothing original here.
+A small hobby/ school-project. Inspired by the ATARI Asteroid game, this is an
+implementation in React/Rust/WebGL/Wasm. Feel free to use the code as you please.
+
+![Tutorial on what to click](docs/game.png)
+
+The SPA also includes some other sections but they are nowhere as interesting as the game itself.
 
 ## Main Frameworks/Libraries/Packages
-
-Please see requirements.txt, package.json, Cargo.toml for full details.
 
 ExpressJS
 
@@ -19,10 +22,14 @@ React
 - SASS support
 - WebAssembly support
 - Integration with the Rust-Wasm module
+- RUST INTEGRATION:
+  - Compilation on code change straight to WASM with all type definitions
+  - Rust 2018 edition
+  - wasm-bindgen for WEB APIs
 
-Postgress
+Neo4j Graph database
 
-- Docker v12.0 alpine image
+- Docker neo4j:4.1.4 image
 
 Ngnix
 
@@ -30,15 +37,6 @@ Ngnix
 
 Rust
 
-- Compilation on code change straight to WASM with all type definitions
-- Rust 2018 edition
-- wasm-bindgen for WEB APIs
-
-## Notes
-
-React
-
-- To mark a css file as a module use the syntax of `import style from "styleFile.module.scss"`
 
 ### Useful Commands
 
@@ -90,7 +88,6 @@ $> docker exec -it <container-name> sh
 | dev-react | react   | 3001      | 3000        |
 | dev-db    | db      | 5432      | 5432        |
 | dev-nginx | nginx   | 8080      | 80          |
-| dev-rust  | rust    |           |             |
 
 ### Why NGINX for local dev
 
