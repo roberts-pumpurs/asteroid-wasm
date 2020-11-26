@@ -1,4 +1,5 @@
 import React, { ReactElement, useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useSpring, animated } from 'react-spring/web';
 import {
   Country, Game, GameState, User,
@@ -13,20 +14,24 @@ interface Props {
   score: number;
   secondsElapsed: number;
 }
-
+const unknownCountry = {
+  country: '??',
+  countryCode: '??',
+};
 export function GameOverlay({
   setActive, currentState, score, secondsElapsed,
 }: Props): ReactElement {
   const { x } = useSpring({ from: { x: 0 }, x: 1, config: { duration: 5000 } });
+  const history = useHistory();
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
   const [startTime, setStartTime] = useState<number>(0);
-  const [playerCountry, setPlayerCountry] = useState<Country>();
+  const [playerCountry, setPlayerCountry] = useState<Country>(unknownCountry);
 
   useEffect(() => {
     async function getCountry(): Promise<void> {
-      const c = await Requester.getCountry();
+      const c = await Requester.getCountry().catch(() => (unknownCountry));
       setPlayerCountry(c);
     }
     void getCountry();
@@ -114,7 +119,9 @@ export function GameOverlay({
                 start: new Date(startTime).toISOString(),
                 end: new Date(startTime + secondsElapsed).toISOString(),
               };
-              void Requester.SaveGame({ user, country: playerCountry || { country: 'UNKNOWN', countryCode: '??' }, game });
+              await Requester.SaveGame({ user, country: playerCountry, game });
+              history.push('/statistics');
+              history.go(1);
             }}
           > SAVE SCORE
           </button>
