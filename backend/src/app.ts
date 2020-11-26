@@ -110,7 +110,7 @@ app.get('/api/leaderboards', async (req, res) => {
         country: { country: '', countryCode: '' },
       };
     }
-    const duration = (new Date(el.game.end).getTime() - new Date(el.game.start).getTime()) / 60000;
+    const duration = (new Date(el.game.end).getTime() - new Date(el.game.start).getTime());
     aggregateLeaderbaord[el.user.username].score += el.game.score;
     aggregateLeaderbaord[el.user.username].count += 1;
     aggregateLeaderbaord[el.user.username].duration += duration;
