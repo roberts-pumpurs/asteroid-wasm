@@ -12,11 +12,11 @@ function App(): ReactElement {
       <Header />
       <main id="main">
         <section id="content">
-          <Main />
           {/* Spawn stars */}
           {Array.apply(null, Array(100)).map(
             (_, index) => <div key={index} className={style.star} />,
             )}
+          <Main />
         </section>
         <footer>
           <Footer />
