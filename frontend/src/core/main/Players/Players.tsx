@@ -25,7 +25,7 @@ export function Players(): ReactElement {
   const [allUsers, setAllUsers] = useState<Array<User>>([]);
 
   /* Error */
-  const [error, setError] = useState(true);
+  const [error, setError] = useState(false);
 
   const updateUsers = useCallback(
     () => {
@@ -38,6 +38,16 @@ export function Players(): ReactElement {
     updateUsers();
   }, [updateUsers]);
 
+  const [props, set] = useSpring(() => ({
+    opacity: 1,
+    config: { mass: 1, tension: 1000, friction: 100 },
+    onRest: (a: { opacity: number}) => {
+      if (a.opacity === 0) {
+        setError(false);
+      }
+    },
+  }));
+
   return (
     <>
       <div className={style.container}>
@@ -49,25 +59,25 @@ export function Players(): ReactElement {
             <PlayerCard
               key={e.name + e.surname + e.username}
               user={e}
-              updateExisting={(neUser: User) => updateUser(e.username, neUser).then(() => updateUsers()).catch(() => setError(true))}
-              deleteExisting={() => deleteUser(e).then(() => updateUsers()).catch(() => setError(true))}
+              updateExisting={(neUser: User) => updateUser(e.username, neUser).then(() => updateUsers()).catch(() => { set({ opacity: 1 }); setError(true); })}
+              deleteExisting={() => deleteUser(e).then(() => updateUsers()).catch(() => { set({ opacity: 1 }); setError(true); })}
             />
           ))}
         </div>
       </div>
       { error && (
-        <button
-          type="button"
-          onClick={() => setError(false)}
-          className={style.error}
+      <animated.div
+        onClick={() => set({ opacity: 0 })}
+        style={{ opacity: props.opacity }}
+        className={style.error}
+      >
+        <abbr
+          title="Click to dismiss"
         >
-          <abbr
-            title="Click to dismiss"
-          >
-            Something went wrong with that request.
-            Make sure the username is unique!
-          </abbr>
-        </button>
+          Something went wrong with that request.
+          Make sure the username is unique!
+        </abbr>
+      </animated.div>
       )}
     </>
   );
