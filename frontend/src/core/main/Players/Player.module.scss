@@ -41,9 +41,9 @@
 
       .detail {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         justify-content: center;
-
+        align-items: center;
       }
 
       .footer {
@@ -51,6 +51,12 @@
         flex-direction: row;
         justify-content: space-between;
       }
+    }
+
+    .user-card-editing {
+      @extend .user-card;
+      background-color: rgb(80, 0, 76);
+
     }
   }
 }
