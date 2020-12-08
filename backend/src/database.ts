@@ -1,5 +1,7 @@
 import neo4j from 'neo4j-driver';
-import { Country, Game, GameListing, User } from './models';
+import {
+  Country, Game, GameListing, User,
+} from './models';
 
 const driver = neo4j.driver('bolt://db:7687', neo4j.auth.basic(
   process.env.DB_USERNAME || 'neo4j', process.env.DB_PASSWORD || 'password',
@@ -22,6 +24,47 @@ export async function createUser(
       username: user.username,
     });
     await session.run('CREATE CONSTRAINT IF NOT EXISTS ON (n:user) ASSERT n.username IS UNIQUE', {});
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
+
+export async function deleteUser(
+  username: string,
+): Promise<boolean> {
+  const session = driver.session();
+  try {
+    await session.run(`
+    MATCH (n {username: $username})
+    DETACH DELETE n
+    `, {
+      username,
+    });
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
+
+export async function updateUser(
+  user: User,
+  usernameOld: string,
+): Promise<boolean> {
+  const session = driver.session();
+  try {
+    await session.run(`
+    MATCH (n {username: $usernameOld })
+      SET n.username = $usernameNew, n.name = $name, n.surname = $surname
+    RETURN n
+    `, {
+      usernameOld,
+      usernameNew: user.username,
+      name: user.name,
+      surname: user.surname,
+    });
     return true;
   } catch (error) {
     console.log(error);
@@ -182,27 +225,27 @@ export async function initial(): Promise<void> {
   const g2 = {
     score: 19,
     start: '2020-04-07 19:00:00',
-    end: '2020-04-07 20:03:00',
+    end: '2020-04-07 19:01:00',
   };
   const g3 = {
     score: 33,
     start: '1999-04-07 19:00:00',
-    end: '1999-04-07 20:03:00',
+    end: '1999-04-07 20:02:00',
   };
   const g4 = {
     score: 33,
     start: '2020-04-08 19:00:00',
-    end: '2020-04-08 20:03:00',
+    end: '2020-04-08 19:03:00',
   };
   const g5 = {
     score: 100,
     start: '2020-04-09 19:00:00',
-    end: '2020-04-09 20:03:00',
+    end: '2020-04-09 19:05:00',
   };
   const g6 = {
     score: 44,
     start: '2020-04-10 19:00:00',
-    end: '2020-04-10 20:03:00',
+    end: '2020-04-10 19:04:00',
   };
 
   // Create temp game data

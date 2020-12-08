@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import {
   addUserToCounty,
-  createCountry, createGame, createUser, getGames, getNumNodes, getUsers, initial,
+  createCountry, createGame, createUser, getGames, getNumNodes, getUsers, initial, deleteUser, updateUser,
 } from './database';
 import {
   Country, Game, GameListing, User,
@@ -44,6 +44,21 @@ app.post('/api/users', async (req, res) => {
   const created = await createUser(obj);
   res.status(created ? 201 : 400);
   res.send({ created });
+});
+
+app.delete('/api/users/:username', async (req, res) => {
+  const { username } = req.params;
+  const deleted = await deleteUser(username);
+  res.status(deleted ? 204 : 400);
+  res.send({ deleted });
+});
+
+app.put('/api/users/:username', async (req, res) => {
+  const { username } = req.params;
+  const obj: User = req.body;
+  const updated = await updateUser(obj, username);
+  res.status(updated ? 204 : 400);
+  res.send({ updated });
 });
 
 app.post('/api/countries', async (req, res) => {
