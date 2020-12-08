@@ -9,9 +9,7 @@ import style from 'utils/stars.module.scss';
 function App(): ReactElement {
   return (
     <>
-      {/* <header> */}
-        <Header />
-      {/* </header> */}
+      <Header />
       <main id="main">
         <section id="content">
           <Main />

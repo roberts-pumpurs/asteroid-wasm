@@ -70,6 +70,11 @@ export function Header(): React.ReactElement {
             </Link>
           </li>
           <li className={sass['nav-item']}>
+            <Link to="/players">
+              Players
+            </Link>
+          </li>
+          <li className={sass['nav-item']}>
             <Link to="/about">
               About
             </Link>

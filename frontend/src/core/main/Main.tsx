@@ -10,6 +10,7 @@ import { Game } from './Game/Game';
 import { GameHistory } from './Statistics/GameHistory/GameHistory';
 import { LeaderboardComponent } from './Statistics/Leaderboard/Leaderboard';
 import { Statistics } from './Statistics/Statistics';
+import { Players } from './Players/Players';
 
 export function Main(): React.ReactElement {
   return (
@@ -24,6 +25,7 @@ export function Main(): React.ReactElement {
         </WasmContextConsumer>
       </Route>
       <Route exact path="/statistics" component={Statistics} />
+      <Route exact path="/players" component={Players} />
       <Route exact path="/about">
         <WasmContextConsumer>
           {
