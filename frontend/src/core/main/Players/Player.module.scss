@@ -1,5 +1,29 @@
 @use '../../../utils/base';
 
+.error {
+  /* Positioning */
+  position: absolute;
+  max-width: 40%;
+  margin-top: 10%;
+  margin-left: 30%;
+  margin-right: 30%;
+
+  background-color: rgb(255, 0, 0);
+  color: white;
+        font-size: 1.5rem;
+
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: none;
+  cursor: pointer;
+
+  abbr {
+    text-decoration: none;
+  }
+
+
+}
+
 .container {
   display: flex;
   flex-direction: column;
