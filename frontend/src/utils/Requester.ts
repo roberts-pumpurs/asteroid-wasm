@@ -32,8 +32,8 @@ async function post<T, B>(url: string, params: B): Promise<T> {
   return response.data;
 }
 
-async function patch<T, B>(url: string, params: B): Promise<T> {
-  const response = await apiClient.patch<T>(url, params).catch((err) => {
+async function put<T, B>(url: string, params: B): Promise<T> {
+  const response = await apiClient.put<T>(url, params).catch((err) => {
     throw err;
   });
   return response.data;
@@ -57,10 +57,11 @@ class Requester {
 
   getAllUsers = (): Promise<{ users: Array<User> }> => get(urls.users, {});
 
+  deleteUser = (username: string): Promise<void> => del(`${urls.users}/${username}`, {});
+
+  updateUser = (username: string, user: User): Promise<void> => put(`${urls.users}/${username}`, user);
+
   // changeUsername
-
-
-  // deleteGame = ()
 }
 
 const requester = new Requester();
