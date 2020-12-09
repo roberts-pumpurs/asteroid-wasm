@@ -42,30 +42,26 @@ app.get('/api/nodes', async (req, res) => {
 app.post('/api/users', async (req, res) => {
   const obj: User = req.body;
   const created = await createUser(obj);
-  res.status(created ? 201 : 400);
-  res.send({ created });
+  res.status(created ? 201 : 400).send({ created });
 });
 
 app.delete('/api/users/:username', async (req, res) => {
   const { username } = req.params;
   const deleted = await deleteUser(username);
-  res.status(deleted ? 204 : 400);
-  res.send({ deleted });
+  res.status(deleted ? 204 : 400).send({ deleted });
 });
 
 app.put('/api/users/:username', async (req, res) => {
   const { username } = req.params;
   const obj: User = req.body;
   const updated = await updateUser(obj, username);
-  res.status(updated ? 204 : 400);
-  res.send({ updated });
+  res.status(updated ? 204 : 400).send({ updated });
 });
 
 app.post('/api/countries', async (req, res) => {
   const obj: Country = req.body;
   const created = await createCountry(obj);
-  res.status(created ? 201 : 400);
-  res.send({ created });
+  res.status(created ? 201 : 400).send({ created });
 });
 
 interface Params {
@@ -81,8 +77,7 @@ app.post('/api/games', async (req, res) => {
   await addUserToCounty(obj.country, obj.user);
   const createdGame = await createGame(obj.game, obj.user);
 
-  res.status(createdGame ? 201 : 400);
-  res.send({ createdGame });
+  res.status(createdGame ? 201 : 400).send({ createdGame });
 });
 
 app.get('/api/users', async (req, res) => {
