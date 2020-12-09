@@ -1,0 +1,10 @@
+version: "3.7"
+
+services:
+  node:
+    command: sh -c "yarn install && yarn dev:start"
+  react:
+    command: sh ./dev.prod.sh
+  nginx:
+    ports:
+      - 80:80

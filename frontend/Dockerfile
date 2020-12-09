@@ -21,6 +21,10 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | bash
 RUN cargo install cargo-watch
 
+# For deploytment
+RUN apt update
+RUN apt install xsel
+
 # add app
 COPY . ./
 

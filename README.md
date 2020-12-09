@@ -56,29 +56,14 @@ $> docker-compose up
 
 ```
 
-Bring containers down. Add -v flag to also delete named volumes
+For production use (Note that this can take a while -- ~3min !):
 
 ```sh
 
-$> docker-compose down
+$> docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
 
 ```
 
-View logs by service name.
-
-```sh
-
-$> docker-compose logs <service-name>
-
-```
-
-Enter shell for specified container (must be running)
-
-```sh
-
-$> docker exec -it <container-name> sh
-
-```
 
 ### Containers, Services and Ports
 
