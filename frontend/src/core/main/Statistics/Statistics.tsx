@@ -36,7 +36,8 @@ const charts: { [key: number]: Selectable} = {
   },
 };
 
-export function Statistics(): ReactElement {
+// eslint-disable-next-line import/no-default-export
+export default function Statistics(): ReactElement {
   const [itemIndexTop, setItemIndexTop] = useState<number>(0);
   const [itemIndexBottom, setItemIndexBottom] = useState<number>(0);
 

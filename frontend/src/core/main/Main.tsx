@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, ReactElement, Suspense } from 'react';
 
 import {
   Switch,
@@ -9,9 +9,15 @@ import { WasmContextConsumer } from 'WasmContext';
 import { animated, useTransition } from 'react-spring';
 import { About } from './About/About';
 import { Game } from './Game/Game';
-import { Statistics } from './Statistics/Statistics';
-import { Players } from './Players/Players';
 
+/* Static declarations */
+const Statistics = lazy(() => import('./Statistics/Statistics'));
+const Players = lazy(() => import('./Players/Players'));
+
+const renderLoader = (): ReactElement => <p>Loading</p>;
+
+// The return type is `any` because `JSX.Element[]` is not a valid return type
+// for TS(the return type from transition.map)
 export function Main(): any {
   const location = useLocation();
 
@@ -25,28 +31,30 @@ export function Main(): any {
   });
   return transitions.map(({ item: l, props, key }) => (
     <animated.div key={key} style={props}>
-      <Switch location={l}>
-        <Route exact path="/">
-          <WasmContextConsumer>
-            {
+      <Suspense fallback={renderLoader()}>
+        <Switch location={l}>
+          <Route exact path="/">
+            <WasmContextConsumer>
+              {
               (context) => context && (
                 <Game wasm={context.wasm} />
               )
             }
-          </WasmContextConsumer>
-        </Route>
-        <Route exact path="/statistics" component={Statistics} />
-        <Route exact path="/players" component={Players} />
-        <Route exact path="/about">
-          <WasmContextConsumer>
-            {
+            </WasmContextConsumer>
+          </Route>
+          <Route exact path="/statistics" component={Statistics} />
+          <Route exact path="/players" component={Players} />
+          <Route exact path="/about">
+            <WasmContextConsumer>
+              {
               (context) => context && (
                 <About wasm={context.wasm} />
               )
             }
-          </WasmContextConsumer>
-        </Route>
-      </Switch>
+            </WasmContextConsumer>
+          </Route>
+        </Switch>
+      </Suspense>
     </animated.div>
   ));
 }

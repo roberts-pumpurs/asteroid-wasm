@@ -20,7 +20,8 @@ async function updateUser(username: string, user: User): Promise<void> {
   await Requester.updateUser(username, user);
 }
 
-export function Players(): ReactElement {
+// eslint-disable-next-line import/no-default-export
+export default function Players(): ReactElement {
   /* All users */
   const [allUsers, setAllUsers] = useState<Array<User>>([]);
 
