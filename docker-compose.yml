@@ -60,6 +60,5 @@ services:
       - react
       - db
 volumes:
-  postgres_data:
   media:
   static:
