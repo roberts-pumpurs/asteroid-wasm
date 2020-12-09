@@ -6,11 +6,13 @@ import { LeaderboardComponent } from './Leaderboard/Leaderboard';
 
 import style from './Statistics.module.scss';
 
+/* Basic multiselect interface */
 interface Selectable {
   item: ReactElement,
   title: string
 }
 
+/* Multiselect for different tables */
 const tables: { [key: number]: Selectable} = {
   0: {
     item: <GameHistory />,
@@ -22,6 +24,7 @@ const tables: { [key: number]: Selectable} = {
   },
 };
 
+/* Multiselect for different charts */
 const charts: { [key: number]: Selectable} = {
   0: {
     item: <CountryChartScore />,
@@ -37,6 +40,7 @@ export function Statistics(): ReactElement {
   const [itemIndexTop, setItemIndexTop] = useState<number>(0);
   const [itemIndexBottom, setItemIndexBottom] = useState<number>(0);
 
+  /* Change the selected item, perform array wrapping if necessary */
   const handleChange = useCallback(
     (newNumber: number, maxItems: number, callback: (arg0: number) => void) => {
       if (newNumber > maxItems - 1) {

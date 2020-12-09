@@ -14,10 +14,14 @@ import { Players } from './Players/Players';
 
 export function Main(): any {
   const location = useLocation();
+
+  /* Handle animations on scene switches */
   const transitions = useTransition(location, (loc) => loc.pathname, {
     from: { opacity: 1, transform: 'scale(0.5) translateY(-50%)', position: 'relative' },
     enter: { opacity: 1, transform: 'scale(1) translateY(0)', position: 'relative' },
-    leave: { marginLeft: '10rem', opacity: 0, transform: 'scale(0) translateY(50%)', position: 'absolute' },
+    leave: {
+      marginLeft: '10rem', opacity: 0, transform: 'scale(0) translateY(50%)', position: 'absolute',
+    },
   });
   return transitions.map(({ item: l, props, key }) => (
     <animated.div key={key} style={props}>

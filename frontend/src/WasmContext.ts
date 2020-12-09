@@ -1,5 +1,6 @@
 import React from 'react';
 
+/* Provide the WASM components as a globally accessible context element */
 export interface WasmContextInterface {
   wasm: typeof import('wasm-app');
 }

@@ -3,19 +3,16 @@ import { Country, Game, User } from 'types';
 import { GameListing, GameListingResponse, Leaderboard } from 'utils/Responses';
 import { SaveGameRequestParam } from './Requests';
 
-const apiClient = axios.create({
-  xsrfCookieName: 'csrftoken',
-  xsrfHeaderName: 'X-CSRFTOKEN',
-});
+const apiClient = axios.create();
 
 const urls = {
   games: '/api/games',
   users: '/api/users',
   leaderboards: '/api/leaderboards',
-  country: 'http://ip-api.com/json/?fields=countryCode,country',
-  backendCountry: '/api/countries',
+  country: 'http://ip-api.com/json/?fields=countryCode,country', // External API for getting the users location via IP
 };
 
+/* ---- Basic HTTP method wrappers ----  */
 async function get<T, B>(url: string, params: B): Promise<T> {
   const response = await apiClient
     .get<T>(url, { params })
@@ -46,6 +43,7 @@ async function del<T, B>(url: string, params: B): Promise<T> {
   return response.data;
 }
 
+/* ---- Base global accessor for communicating with the backend ---- */
 class Requester {
   FetchGames = (): Promise<GameListingResponse> => get(urls.games, {});
 
@@ -60,8 +58,6 @@ class Requester {
   deleteUser = (username: string): Promise<void> => del(`${urls.users}/${username}`, {});
 
   updateUser = (username: string, user: User): Promise<void> => put(`${urls.users}/${username}`, user);
-
-  // changeUsername
 }
 
 const requester = new Requester();
