@@ -22,14 +22,15 @@ jobs:
       with:
         node-version: 14.x
 
-    - name: Install NPM packages
-      run: npm ci
+    - name: Install Rust
+      run: |
+        curl --proto '=https' --tlsv1.2  -sSf https://sh.rustup.rs  | bash -s -- -y
+        export PATH="/root/.cargo/bin:${PATH}"
+        curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | bash
+        cargo install cargo-watch
 
     - name: Build project
       run: sh ./dev.prod.sh
-
-    - name: Run tests
-      run: npm run test
 
     - name: Upload production-ready build files
       uses: actions/upload-artifact@v2
