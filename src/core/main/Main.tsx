@@ -1,4 +1,4 @@
-import React, { lazy, ReactElement, Suspense } from 'react';
+import React, { ReactElement, Suspense } from 'react';
 
 import {
   Switch,

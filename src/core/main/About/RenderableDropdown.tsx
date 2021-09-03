@@ -23,10 +23,12 @@ export function RenderableDropdown({
 
   useEffect(() => {
     client.set_renderable(options, new wasm.Transform(x, y, z));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options, client, wasm.Transform]);
 
   useEffect(() => {
     client.set_transform(new wasm.Transform(x, y, z));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [x, y, z]);
 
   return client !== undefined && options !== undefined ? (

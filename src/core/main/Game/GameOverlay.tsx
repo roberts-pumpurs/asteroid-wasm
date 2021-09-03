@@ -1,9 +1,6 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { ReactElement, useState } from 'react';
 import { useSpring, animated } from 'react-spring/web';
-import {
-  Country, Game, GameState, User,
-} from 'types';
+import { GameState } from 'types';
 
 import style from './Game.module.scss';
 
@@ -11,22 +8,14 @@ interface Props {
   setActive: (arg0: boolean) => void;
   currentState: GameState;
   score: number;
-  secondsElapsed: number;
 }
-const unknownCountry = {
-  country: '??',
-  countryCode: '??',
-};
 export function GameOverlay({
-  setActive, currentState, score, secondsElapsed,
+  setActive, currentState, score
 }: Props): ReactElement {
   const { x } = useSpring({ from: { x: 0 }, x: 1, config: { duration: 5000 } });
-  const history = useHistory();
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
-  const [startTime, setStartTime] = useState<number>(0);
-  const [playerCountry, setPlayerCountry] = useState<Country>(unknownCountry);
 
 
   switch (currentState) {
@@ -53,7 +42,6 @@ export function GameOverlay({
             className={`${style.btn} ${style['draw-border']}`}
             type="button"
             onClick={() => {
-              setStartTime(Date.now());
               setActive(true);
             }}
           > START
