@@ -11,8 +11,6 @@ import { About } from './About/About';
 import { Game } from './Game/Game';
 
 /* Static declarations */
-const Statistics = lazy(() => import('./Statistics/Statistics'));
-const Players = lazy(() => import('./Players/Players'));
 
 const renderLoader = (): ReactElement => <p>Loading</p>;
 
@@ -42,8 +40,6 @@ export function Main(): any {
             }
             </WasmContextConsumer>
           </Route>
-          <Route exact path="/statistics" component={Statistics} />
-          <Route exact path="/players" component={Players} />
           <Route exact path="/about">
             <WasmContextConsumer>
               {

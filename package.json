@@ -24,7 +24,7 @@
     "react-spring": "8.0.27",
     "recharts": "1.8.5",
     "typescript": "4.0.2",
-    "wasm-app": "file:/srv/app/src/rust/pkg"
+    "wasm-app": "file:src/rust/pkg"
   },
   "scripts": {
     "start": "react-app-rewired start",

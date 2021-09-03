@@ -4,7 +4,6 @@ import { useSpring, animated } from 'react-spring/web';
 import {
   Country, Game, GameState, User,
 } from 'types';
-import { Requester } from 'utils/Requester';
 
 import style from './Game.module.scss';
 
@@ -29,13 +28,6 @@ export function GameOverlay({
   const [startTime, setStartTime] = useState<number>(0);
   const [playerCountry, setPlayerCountry] = useState<Country>(unknownCountry);
 
-  useEffect(() => {
-    async function getCountry(): Promise<void> {
-      const c = await Requester.getCountry().catch(() => (unknownCountry));
-      setPlayerCountry(c);
-    }
-    void getCountry();
-  }, []);
 
   switch (currentState) {
     case GameState.INITIALIZING:
@@ -105,27 +97,6 @@ export function GameOverlay({
               />
             </div>
           </div>
-          <button
-            className={`${style.btn} ${style['draw-border']}`}
-            type="button"
-            onClick={async () => {
-              const user: User = {
-                name,
-                surname,
-                username,
-              };
-              const game: Game = {
-                score,
-                start: new Date(startTime).toISOString(),
-                end: new Date(startTime + secondsElapsed).toISOString(),
-              };
-              await Requester.SaveGame({ user, country: playerCountry, game });
-              history.push('/statistics');
-              history.go(1);
-            }}
-          > SAVE SCORE
-          </button>
-
           <button
             className={`${style.btn} ${style['draw-border']}`}
             type="button"

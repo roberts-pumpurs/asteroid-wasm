@@ -1,2 +1,4 @@
-rm -rf /srv/app/node_modules/wasm-app
-cp -r /srv/app/src/rust/pkg/ /srv/app/node_modules/wasm-app
+rm -rf node_modules/wasm-app
+mkdir -p node_modules
+mkdir -p node_modules/wasm-app
+cp -r src/rust/pkg/ node_modules/wasm-app
