@@ -31,7 +31,7 @@ export function Main(): any {
     <animated.div key={key} style={props}>
       <Suspense fallback={renderLoader()}>
         <Switch location={l}>
-          <Route exact path="/">
+          <Route exact path="/asteroid-wasm/">
             <WasmContextConsumer>
               {
               (context) => context && (
@@ -40,7 +40,7 @@ export function Main(): any {
             }
             </WasmContextConsumer>
           </Route>
-          <Route exact path="/about">
+          <Route exact path="/asteroid-wasm/about">
             <WasmContextConsumer>
               {
               (context) => context && (

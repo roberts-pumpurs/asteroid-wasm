@@ -60,22 +60,12 @@ export function Header(): React.ReactElement {
         </span>
         <ul className={sass['nav-links']}>
           <li className={sass['nav-item']}>
-            <Link to="/">
+            <Link to="/asteroid-wasm">
               Home
             </Link>
           </li>
           <li className={sass['nav-item']}>
-            <Link to="/statistics">
-              Statistics
-            </Link>
-          </li>
-          <li className={sass['nav-item']}>
-            <Link to="/players">
-              Players
-            </Link>
-          </li>
-          <li className={sass['nav-item']}>
-            <Link to="/about">
+            <Link to="/asteroid-wasm/about">
               About
             </Link>
           </li>

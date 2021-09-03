@@ -1,4 +1,4 @@
-# Asteroid WASM
+# [Asteroid WASM - Click here to here](https://roberts-ivanovs.github.io/asteroid-wasm/)
 
 A small hobby/ school-project. Inspired by the ATARI Asteroid game, this is an
 implementation in React/Rust/WebGL/Wasm. Feel free to use the code as you please.
@@ -9,10 +9,6 @@ The SPA also includes some other sections but they are nowhere as interesting as
 
 ## Main Frameworks/Libraries/Packages
 
-ExpressJS
-
-- Node dev server via Docker LTS alpine image
-- TypeScript/ESlint with very opinionated rules
 
 React
 
@@ -34,3 +30,11 @@ React
 | Container | Service | Host Port | Docker Port |
 | --------- | ------- | --------- | ----------- |
 | dev-react | react   | 3001      | 3000        |
+
+
+
+## Note
+
+For the school project I ahd toa dd a lot of useless other packages and functionality, like a backend, a graph database, simple data storing, etc.
+
+All of that has been removed for this static site version. But if you wish to check that out as well -- [here's the bloated version](https://github.com/roberts-ivanovs/asteroid-wasm/tree/v1).
