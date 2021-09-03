@@ -54,7 +54,7 @@ export function Header(): React.ReactElement {
     <Menu styles={styles} pageWrapId="main" outerContainerId="root">
       <nav>
         <span className={sass.logo}>
-          <Link to="/">
+          <Link to="/asteroid-wasm">
             ATARI Asteroids
           </Link>
         </span>
