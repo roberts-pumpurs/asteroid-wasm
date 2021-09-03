@@ -4,12 +4,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/asteroid-wasm/e69816f69d77988c1a96.module.wasm"
   },
   {
-    "revision": "07437852c724e5912a346cc995c95a1d",
+    "revision": "760ed8797da5fac676edb00ac4c2ceba",
     "url": "/asteroid-wasm/index.html"
   },
   {
-    "revision": "39b45af6112e7c26598a",
-    "url": "/asteroid-wasm/static/css/main.c161863b.chunk.css"
+    "revision": "ef6ad3991ba94b36155e",
+    "url": "/asteroid-wasm/static/css/main.2c722420.chunk.css"
   },
   {
     "revision": "310eef893a76f6645759",
@@ -24,8 +24,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/asteroid-wasm/static/js/3.eb493401.chunk.js"
   },
   {
-    "revision": "39b45af6112e7c26598a",
-    "url": "/asteroid-wasm/static/js/main.8dce9faf.chunk.js"
+    "revision": "ef6ad3991ba94b36155e",
+    "url": "/asteroid-wasm/static/js/main.dfdac3ad.chunk.js"
   },
   {
     "revision": "09003dab2da7d472fa57",
